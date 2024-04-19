@@ -1,0 +1,97 @@
+# this file should be imported in /etc/caddy/Caddyfile
+# after any change is done here. we should reload the caddy service: `sudo systemctl reload caddy`
+
+handle /api/v1/* {
+	skip_log
+	reverse_proxy http://localhost:5001
+}
+
+handle /* {
+	skip_log
+	reverse_proxy http://localhost:5000
+}
+
+# static routes in dev: files are served by vite
+
+handle /static-v3/* {
+	skip_log
+	reverse_proxy http://localhost:5000
+}
+
+# special paths related to the vite/sveltekit server in dev mode (can we configure it to have some kind of prefix?)
+
+handle /@fs/* {
+	skip_log
+	reverse_proxy http://localhost:8012
+}
+
+handle /@vite/* {
+	skip_log
+	reverse_proxy http://localhost:8012
+}
+
+handle /@id/* {
+	skip_log
+	reverse_proxy http://localhost:8012
+}
+
+handle /node_modules/* {
+	skip_log
+	reverse_proxy http://localhost:8012
+}
+
+handle /.svelte-kit/* {
+	skip_log
+	reverse_proxy http://localhost:8012
+}
+
+handle /src/* {
+	skip_log
+	reverse_proxy http://localhost:8012
+}
+
+# debug
+
+handle /api/v1/caddy-ping {
+	respond "hello world" 200
+}
+
+handle /api/v1/caddy-ping/* {
+	respond "
+
+===
+placeholders: https://caddyserver.com/docs/caddyfile/concepts#placeholders
+
+remote_host: {remote_host}
+client_ip: {client_ip}
+dir: {dir}
+file.base: {file.base}
+file.ext: {file.ext}
+file: {file}
+host: {host}
+hostport: {hostport}
+method: {method}
+path: {path}
+path.x: {path.x}
+path.0: {path.0}
+path.1: {path.1}
+port: {port}
+query: {query}
+remote_host: {remote_host}
+remote_port: {remote_port}
+remote: {remote}
+scheme: {scheme}
+tls_cipher: {tls_cipher}
+tls_client_certificate_der_base64: {tls_client_certificate_der_base64}
+tls_client_certificate_pem: {tls_client_certificate_pem}
+tls_client_fingerprint: {tls_client_fingerprint}
+tls_client_issuer: {tls_client_issuer}
+tls_client_serial: {tls_client_serial}
+tls_client_subject: {tls_client_subject}
+tls_version: {tls_version}
+upstream_hostport: {upstream_hostport}
+uri: {uri}
+===
+
+	" 200
+}
