@@ -45,6 +45,20 @@ touch config/caddy/Caddyfile-dev
 touch config/caddy/Caddyfile-prod
 ```
 
+For local development we can update the `/etc/hosts` to have a local domain:
+
+```shell
+sudo emacs /etc/hosts
+```
+
+Append a lines similar to this:
+
+```
+127.0.0.1 the-domain.local
+```
+
+NOTE: sveltekit hot reload doesn't seem to work well with these local domains.
+
 The main caddy configuration should import one of the files above:
 
 ```shell
@@ -56,8 +70,8 @@ sudo emacs /etc/caddy/Caddyfile
 # add a new site block
 
 http://the-domain.local {
-	import /path/to/project/config/caddy/Caddyfile-dev
-	#import /path/to/project/config/caddy/Caddyfile-prod
+	import /path/to/project-root/config/caddy/Caddyfile-dev
+	#import /path/to/project-root/config/caddy/Caddyfile-prod
 }
 
 ```
@@ -66,24 +80,17 @@ Caddy must be reloaded after the main caddyfile (or one of the included Caddyfil
 
 ```shell
 sudo systemctl reload caddy
+sudo systemctl status caddy
 ```
 
-For local development we can update the `/etc/hosts` to have a local domain:
+We should now be able to load the webapp using `http://the-domain.local` (see step 3)
 
-```shell
-sudo emacs /etc/hosts
-```
 
-Append these lines:
+## 2 - See the monorepo working
 
-```
-...
-127.0.0.1 the-domain.local
-```
+### 2.1 - Create a dummy package in the workspace
 
-NOTE: sveltekit hot reload doesn't seem to work well with these local domains
-
-## 2 - Add a dummy package to see the monorepo working
+Reference: https://pnpm.io/workspaces
 
 ```shell
 mkdir -p packages/dummy
@@ -99,11 +106,13 @@ At this point:
 - `pnpm` should have created `pnpm-lock.yaml` and `node_modules` in the project root
 - this root `node_modules` has a `.pnpm` subdirectory, which is where the modules used in our monorepo packages are stored
 
-It's important to always use `pnpm add ...` from the monorepo packages, to make sure that pnpm will not created a `package.json` in the project root
+Before using `pnpm add <pkg>` we should change the working directory to the monorepo package that will use that dependency (example: `packages/dummy`), to make sure that pnpm will not created a `package.json` in the project root.
 
-To install a package from the local workspace:
+### 2.2 - Add a dependency from the workspace
 
-```shel
+A package in the workspace can be used as a dependency for other packages in the workspace:
+
+```shell
 mkdir -p packages/dummy-2
 cd packages/dummy-2
 pnpm init
@@ -156,16 +165,18 @@ This template has adjustments (or creates) these configuration files:
 - `src/app.css`
 - `src/routes/+layout.svelte`
 
-Some small adjustments that might be necessary in `src/app.html`:
+In `src/app.html` we might have to do some small adjustments:
 
 - add the Inter font: https://github.com/rsms/inter (details here: https://tailwindui.com/documentation#getting-set-up)
 - add `height:100%` to the `html` and `body` elements (via `h-full` from tailwind)
 - add `bg-gray-50` to the `body` element
-- remove the `data-sveltekit-preload-data` attribute
+- remove/disable the `data-sveltekit-preload-data` attribute
 
 ### 3.2 - Make a test build
 
-We are using the node adapter. Make a build and run it:
+Reference: https://kit.svelte.dev/docs/adapter-node
+
+We are using the node adapter (instead of the default auto adapter). Make a build and run it:
 
 ```shell
 pnpm run build
