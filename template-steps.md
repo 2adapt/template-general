@@ -144,7 +144,7 @@ Reference: https://tailwindcss.com/docs/guides/sveltekit
 pnpm add tailwindcss postcss autoprefixer --save-dev
 
 # other useful plugins that we use (tailwindUI, and others)
-pnpm add @tailwindcss/forms @tailwindcss/typography @tailwindcss/aspect-ratio tailwind-scrollbar tailwindcss-debug-screens --save-dev
+pnpm add @tailwindcss/forms @tailwindcss/typography @tailwindcss/aspect-ratio tailwind-scrollbar tailwindcss-debug-screens daisyui --save-dev
 
 # initialize the the tailwind.config.js and postcss.config.js configuration files (`pnpm dlx` is equivalent to `npx`)
 pnpm dlx tailwindcss init -p

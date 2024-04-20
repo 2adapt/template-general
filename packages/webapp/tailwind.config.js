@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 
-const defaultTheme = require('tailwindcss/defaultTheme')
+//const defaultTheme = require('tailwindcss/defaultTheme')
+import defaultTheme from 'tailwindcss/defaultTheme';
 
 export default {
 	content: ['./src/**/*.{html,js,svelte,ts}'],
@@ -20,12 +21,23 @@ export default {
 		},
 	},
 	plugins: [
-		require('@tailwindcss/forms'),
-		require('@tailwindcss/typography'),
-		require('@tailwindcss/aspect-ratio'),
-		require('tailwind-scrollbar')({ nocompatible: true }),
-		require('tailwindcss-debug-screens'),
-		require('daisyui')
+		// require('@tailwindcss/forms'),
+		import('@tailwindcss/forms'),
+		
+		// require('@tailwindcss/typography'),
+		import('@tailwindcss/typography'),
+		
+		// require('@tailwindcss/aspect-ratio'),
+		import('@tailwindcss/aspect-ratio'),
+		
+		// require('tailwind-scrollbar')({ nocompatible: true }),
+		import('tailwind-scrollbar').then((module) => module.default({ nocompatible: true })),
+		
+		// require('tailwindcss-debug-screens'),
+		import('tailwindcss-debug-screens'),
+		
+		// require('daisyui'),
+		import('daisyui'),
 	],
 }
 
