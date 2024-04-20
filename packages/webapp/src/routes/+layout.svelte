@@ -4,4 +4,7 @@ import "../app.css";
 </script>
 
 <slot />
-<span class="debug-screens" class:hidden={!dev}></span>
+
+{#if dev}
+<span class="debug-screens"></span>
+{/if}
