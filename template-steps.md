@@ -122,7 +122,7 @@ pnpm create svelte@latest webapp
 cd webapp
 pnpm install
 
-# add extra packages
+# if necessary, add extra packages
 pnpm add @sveltejs/adapter-node @poppanator/sveltekit-svg --save-dev
 
 # run in dev mode
@@ -246,15 +246,11 @@ pnpm --filter="./api" run dev
 
 
 
+# other notes (to be reviewed)
 
-## other directories and files
-
-```shell
-mkdir upload
-touch upload/initial_dummy_file
 ```
 
-# other notes (to be reviewed)
+
 
 
 

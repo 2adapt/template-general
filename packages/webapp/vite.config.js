@@ -1,8 +1,10 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 
-// extra vite plugin: load svg file (icons) as plain code
+/*
+// extra vite plugin: load svg files (icons) as plain code, directly from ".svg" files
 // reference: https://github.com/poppa/sveltekit-svg/blob/main/README.md#options
+// install: pnpm add @sveltejs/adapter-node @poppanator/sveltekit-svg --save-dev
 
 import svgImporter from '@poppanator/sveltekit-svg';
 
@@ -80,11 +82,12 @@ let svgImporterOptions = {
 		],
 	},
 }
+*/
 
 export default defineConfig({
 	plugins: [
 		sveltekit(), 
-		svgImporter(svgImporterOptions)
+		// svgImporter(svgImporterOptions)
 	],
 	server: {
 		host: '0.0.0.0',

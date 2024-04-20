@@ -12,7 +12,6 @@
 		"format": "prettier --write ."
 	},
 	"devDependencies": {
-		"@poppanator/sveltekit-svg": "4.2.1",
 		"@sveltejs/adapter-auto": "^3.0.0",
 		"@sveltejs/adapter-node": "5.0.1",
 		"@sveltejs/kit": "^2.0.0",
