@@ -133,7 +133,7 @@ This template has adjustments in these configuration files:
 
 - `vite.config.js`
 - `svelte.config.js`
-- `src/static` (all static assets should be placed in `src/static/static-v1`)
+- `src/static` (all static assets should be placed in `src/static/static-prefix`)
 
 ### 3.1 - Install tailwind in the sveltekit app
 

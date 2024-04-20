@@ -13,11 +13,11 @@ handle /* {
 
 # static routes in prod: files are served by caddy directly (files are available in the build directory)
 
-handle /static-v1/* {
-	uri strip_prefix /static-v1
+handle /static-prefix/* {
+	uri strip_prefix /static-prefix
 	file_server {
 		browse
-		root /home/pvieira/github/odslocal-v3/packages/webapp/build/client/static-v1
+		root /home/pvieira/github/odslocal-v3/packages/webapp/build/client/static-prefix
 	}
 }
 
