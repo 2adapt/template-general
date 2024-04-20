@@ -23,11 +23,11 @@ handle /static-prefix/* {
 
 # debug
 
-handle /api/v1/caddy-ping {
-	respond "hello world" 200
+handle /caddy-ping {
+	respond "hello world from Caddyfile-prod" 200
 }
 
-handle /api/v1/caddy-ping/* {
+handle /caddy-ping/* {
 	respond "
 
 ===
