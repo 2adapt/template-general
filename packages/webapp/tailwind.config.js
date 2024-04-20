@@ -2,6 +2,12 @@
 
 //const defaultTheme = require('tailwindcss/defaultTheme')
 import defaultTheme from 'tailwindcss/defaultTheme';
+import forms from '@tailwindcss/forms';
+import typography from '@tailwindcss/typography';
+import aspectRatio from '@tailwindcss/aspect-ratio';
+import scrollbar from 'tailwind-scrollbar';
+import debugScreens from 'tailwindcss-debug-screens';
+import daisyui from 'daisyui';
 
 export default {
 	content: ['./src/**/*.{html,js,svelte,ts}'],
@@ -12,32 +18,27 @@ export default {
 			sans: [['Inter var', ...defaultTheme.fontFamily.sans].join(','), { fontFeatureSettings: '"cv02", "cv03", "cv04", "cv11"' }],
 		},
 		debugScreens: {
-			prefix: 'breakpoint: ',
-			style: {
-				backgroundColor: '#C0FFEE',
-				color: 'black',
-				// ...
-			},
+			prefix: '',
 		},
 	},
 	plugins: [
 		// require('@tailwindcss/forms'),
-		import('@tailwindcss/forms'),
+		forms,
 		
 		// require('@tailwindcss/typography'),
-		import('@tailwindcss/typography'),
+		typography,
 		
 		// require('@tailwindcss/aspect-ratio'),
-		import('@tailwindcss/aspect-ratio'),
+		aspectRatio,
 		
 		// require('tailwind-scrollbar')({ nocompatible: true }),
-		import('tailwind-scrollbar').then((module) => module.default({ nocompatible: true })),
+		scrollbar({ nocompatible: true }),
 		
 		// require('tailwindcss-debug-screens'),
-		import('tailwindcss-debug-screens'),
+		debugScreens,
 		
 		// require('daisyui'),
-		import('daisyui'),
+		daisyui
 	],
 }
 
