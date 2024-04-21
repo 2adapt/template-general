@@ -1,5 +1,5 @@
 {
-	description = "devshell for my-monorepo";
+	description = "devshell for template-for-monorepo";
 
 	inputs.devshell.url = "github:numtide/devshell";
 	inputs.flake-utils.url = "github:numtide/flake-utils";
@@ -19,8 +19,8 @@
 				# example: https://github.com/chvp/nixos-config/blob/main/shells/dodona.nix
 				pkgs.devshell.mkShell {
 
-					motd = "welcome to the my-monorepo devshell";
-					name = "my-monorepo";  # will have impact in the DEVSHELL_DIR env variable; see below
+					motd = "welcome to the template-for-monorepo devshell";
+					name = "template-for-monorepo";  # will have impact in the DEVSHELL_DIR env variable; see below
 					#imports = [ (pkgs.devshell.importTOML ../env.toml) ];
 
 					devshell.packages = [
