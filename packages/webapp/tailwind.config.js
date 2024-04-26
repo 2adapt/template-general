@@ -13,9 +13,15 @@ export default {
 	content: ['./src/**/*.{html,js,svelte,ts}'],
 	theme: {
 		extend: {
-			// a complete list of feature settings seems to be available here: https://github.com/semencov/tailwindcss-font-inter/blob/master/inter.json
-			// more info: https://www.designermarkdavis.com/Feed/filter/glyphs
-			sans: [['Inter var', ...defaultTheme.fontFamily.sans].join(','), { fontFeatureSettings: '"cv02", "cv03", "cv04", "cv11"' }],
+			fontFamily: {
+				// a complete list of feature settings seems to be available here: 
+				// https://github.com/semencov/tailwindcss-font-inter/blob/master/inter.json
+				// more info: 
+				// https://www.designermarkdavis.com/Feed/filter/glyphs
+				// https://tailwindcss.com/docs/font-family#providing-default-font-settings
+				sans: [['Inter var', ...defaultTheme.fontFamily.sans].join(','), { fontFeatureSettings: '"cv02", "cv03", "cv04", "cv11"' }],
+				// sans: ['Inter var', ...defaultTheme.fontFamily.sans],
+			}
 		},
 		debugScreens: {
 			prefix: '',
