@@ -86,6 +86,13 @@ sudo systemctl status caddy
 We should now be able to load the webapp using `http://the-domain.local` (see step 3)
 
 
+
+
+
+
+
+
+
 ## 2 - See the monorepo working
 
 ### 2.1 - Create a dummy package in the workspace
@@ -121,14 +128,20 @@ cat ../../pnpm-lock.yaml | grep --context=9 dummy-2
 ```
 
 
+
+
+
+
+
+
 ## 3 - Initialize the sveltekit project
 
 Reference: https://kit.svelte.dev/docs/creating-a-project
 
 ```shell
-cd packages
-pnpm create svelte@latest webapp
-cd webapp
+mkdir -p packages/webapp
+cd packages/webapp
+pnpm create svelte@latest
 pnpm install
 
 # if necessary, add extra packages
@@ -143,6 +156,7 @@ This template has adjustments in these configuration files:
 - `vite.config.js`
 - `svelte.config.js`
 - `src/static` (all static assets should be placed in `src/static/static-prefix`)
+
 
 ### 3.1 - Install tailwind in the sveltekit app
 
@@ -171,6 +185,7 @@ In `src/app.html` we might have to do some small adjustments:
 - add `height:100%` to the `html` and `body` elements (via `h-full` from tailwind)
 - add `bg-gray-50` to the `body` element
 - remove/disable the `data-sveltekit-preload-data` attribute
+
 
 ### 3.2 - Make a test build
 
@@ -206,6 +221,51 @@ https://kit.svelte.dev/docs/adapter-node#environment-variables-origin-protocolhe
 
 
 
+## 4 - Initialize the api project
+
+Reference: https://github.com/fastify/fastify-cli?tab=readme-ov-file#generate
+
+```shell
+
+mkdir -p packages/api
+cd packages/api
+
+# fastify-cli can be used without an explicit install using `pnpm dlx` or `npx`
+
+pnpm dlx fastify-cli generate --help
+pnpm dlx fastify-cli generate . --esm
+pnpm install
+
+# run in dev mode (has watch mode and pino-pretty logging)
+pnpm run dev
+
+# run in production mode (doesnt not have watch mode and pino-pretty logging)
+pnpm run start
+
+# use the explicit path to the fastify cli; this will start the main plugin (which will load all the other plugins via `@fastify/autoload`)
+node_modules/.bin/fastify start --watch --port 4000 --options app.js
+
+# we can also start just one specific plugin:
+node_modules/.bin/fastify start --watch --port 4000 --options plugins/my-plugin.js
+
+# we can give option for the plugin (received in the second parameter of the plugin function)
+node_modules/.bin/fastify start --watch --port 4000 --options plugins/my-plugin.js -- --plugin-option=abc
+
+
+
+```
+
+
+
+Create a plugin with `fastify-cli`:
+
+NOTE: the output will be too opinionated.
+
+```shell
+pnpm dlx fastify-cli generate-plugin --help
+pnpm dlx fastify-cli generate-plugin the-plugin
+
+```
 
 
 
@@ -214,14 +274,207 @@ https://kit.svelte.dev/docs/adapter-node#environment-variables-origin-protocolhe
 
 
 
+## 5 - Systemd units
+
+Reference: ...
+
+### Base configuration for a `app-name:api` service
+
+Create the configuration file:
+
+```shell
+mkdir -p config/systemd-units/app-name:api
+emacs config/systemd-units/app-name:api/app-name:api.service
+```
+
+Copy-paste:
+
+```shell
+
+[Unit]
+
+# https://www.freedesktop.org/software/systemd/man/systemd.unit.html
+
+# for clarity, Description should be the same as the symlink created in /etc/systemd/system
+Description="app-name:api"
+After=network.target
+After=postgresql.service
+Wants=postgresql.service
 
 
+[Service]
+
+# https://www.freedesktop.org/software/systemd/man/systemd.service.html
+# https://www.freedesktop.org/software/systemd/man/systemd.exec.html
+# https://www.freedesktop.org/software/systemd/man/systemd.resource-control.html
+
+Type=simple
+
+# these 3 options below will be configured separately
+User=...
+WorkingDirectory=/path/to/project-root
+ExecStart=/nix/var/nix/profiles/default/bin/nix-shell --command node packages/api/server.js
+
+
+#ExecStop=...
+Restart=on-failure
+RestartSec=3s
+
+# if restarted is used, will try 3 times during a period of 30 seconds; if the process is not running after that
+# period, it enters the 'failed' state; for systemd v230 the following 2 options have been renamed and moved to 
+# the [Unit] section: StartLimitInterval and StartLimitBurst; more details here:
+# - https://serverfault.com/questions/736624/systemd-apiutomatic-restart-after-startlimitinterval
+# - https://lists.freedesktop.org/archives/systemd-devel/2017-July/039255.html
+
+#StartLimitInterval=30s
+#StartLimitBurst=3
+#PrivateTmp=true
+#ProtectSystem=full
+
+#StandardOutput=journal
+CPUAccounting=true
+MemoryAccounting=true
+TasksAccounting=true
+IOAccounting=true
+IPAccounting=true
+MemoryMax=1000M
+
+#Environment=ONE=123
+#Environment="TWO='with space'"
+#EnvironmentFile="/path/to/.env"
+
+
+[Install]
+
+WantedBy=multi-user.target
+```
+
+Reload and activate the `app-name:api` service:
+
+```shell
+
+# make sure that $PWD is the root directory for the project
+
+echo $PWD
+
+sudo ln -s \
+"${PWD}/config/systemd-units/app-name:api/app-name:api.service" \
+"/etc/systemd/system/app-name:api.service"
+
+sudo systemctl daemon-reload
+sudo systemctl enable "app-name:api.service"
+sudo systemctl start "app-name:api.service"
+```
+
+Systemd will create a new link in `/etc/systemd/system/app-name:api.service` pointing to out `.service` file.
+
+Other commands to interact with the `app-name:api` service:
+
+```shell
+sudo systemctl status "app-name:api.service"
+journalctl --unit "app-name:api.service" --lines 500
+sudo systemctl restart "app-name:api.service"
+sudo systemctl start "app-name:api.service"
+sudo systemctl stop "app-name:api.service"
+sudo systemctl disable "app-name:api.service"
+```
+
+
+### Wrapper scripts for the `app-name:api` service
+
+Create a wrapper for `status` subcommand using a simple shell script:
+
+```shell
+touch config/systemd-units/app-name:api/status.sh
+chmod 755 config/systemd-units/app-name:api/status.sh
+emacs config/systemd-units/app-name:api/status.sh
+```
+
+Copy-paste:
+
+```
+#!/bin/sh
+
+sudo systemctl status "app-name:api"
+```
+
+We can now see the status of the `app-name:api` service using the shell script in the project:
+
+```shell
+sudo config/systemd-units/app-name:api/status.sh
+```
+
+If this makes sense we can repeat for other systemd subcommands: `restart` and `stop`.
+
+
+### Wrapper scripts for all services
+
+Similar to the above, but considering all services related to this project:
+
+```shell
+touch config/systemd-units/status-all.sh
+chmod 755 config/systemd-units/status-all.sh
+emacs config/systemd-units/status-all.sh
+```
+
+Copy-paste:
+
+```
+#!/bin/sh
+
+sudo systemctl status "app-name:api"
+sudo systemctl status "app-name:service-b"
+sudo systemctl status "app-name:service-c"
+```
+
+We can now see the status of all services:
+
+```shell
+sudo config/systemd-units/status-all.sh
+```
+
+
+### Specific configuration for `app-name:api` (if necessary)
+
+Add the missing options in the `[Service]` section using the `systemctl edit` command. More details here: https://www.linode.com/docs/guides/introduction-to-systemctl/#editing-a-unit-file
+
+```shell
+export SYSTEMD_EDITOR=emacs
+sudo systemctl edit "app-name:api"
+```
+
+Add add something like this:
+
+```shell
+
+[Service]
+
+User=...
+WorkingDirectory=/path/to/project-root
+ExecStart=/nix/var/nix/profiles/default/bin/nix-shell --command node packages/api/server.js
+
+```
+
+Any changes to the configuration files requires a reload and restart of the service:
+
+```shell
+sudo systemctl daemon-reload
+sudo systemctl restart "app-name:api.service"
+sudo systemctl status "app-name:api.service"
+```
+
+We should now have a new directory in `/etc/systemd/system/app-name:api.service.d`.
+
+
+
+
+--------------------------------------------------------------------------
 
 
 
 # TO BE REVIEW: from here
 
-# setup the api server
+# setup the api server (hapi)
 
 ```shell
 pnpm create @hapipal api  # equivalent to: npm init @hapipal api
@@ -259,237 +512,3 @@ pnpm --filter="./api" run dev
 
 # other notes (to be reviewed)
 
-```
-
-
-
-
-
-
-
-## TO BE DONE Advanced configuration: systemd units
-
-### Base configuration for `app-name:service-a`
-
-Create the configuration file:
-
-```shell
-mkdir -p config/systemd-units/app-name:service-a
-emacs config/systemd-units/app-name:service-a/app-name:service-a.service
-```
-
-Copy-paste to `config/systemd-units/app-name:service-a/app-name:service-a.service`:
-
-```shell
-[Unit]
-
-# https://www.freedesktop.org/software/systemd/man/systemd.unit.html
-
-# for clarity, Description should the same as the symlink created in /etc/systemd/system
-Description="app-name:service-a"
-After=network.target
-After=postgresql.service
-Wants=postgresql.service
-
-
-[Service]
-
-# https://www.freedesktop.org/software/systemd/man/systemd.service.html
-# https://www.freedesktop.org/software/systemd/man/systemd.exec.html
-# https://www.freedesktop.org/software/systemd/man/systemd.resource-control.html
-
-Type=simple
-
-# these 3 options below will be configured separately
-#User=...
-#WorkingDirectory=...
-#ExecStart=...
-
-
-#ExecStop=...
-Restart=on-failure
-RestartSec=3s
-
-# if restarted is used, will try 3 times during a period of 30 seconds; if the process is not running after that
-# period, it enters the 'failed' state; for systemd v230 the following 2 options have been renamed and moved to 
-# the [Unit] section: StartLimitInterval and StartLimitBurst; more details here:
-# - https://serverfault.com/questions/736624/systemd-service-automatic-restart-after-startlimitinterval
-# - https://lists.freedesktop.org/archives/systemd-devel/2017-July/039255.html
-
-StartLimitInterval=30s
-StartLimitBurst=3
-PrivateTmp=true
-ProtectSystem=full
-
-#StandardOutput=journal
-CPUAccounting=true
-MemoryAccounting=true
-TasksAccounting=true
-IOAccounting=true
-IPAccounting=true
-MemoryMax=1000M
-
-#Environment=ONE=123
-#Environment="TWO='with space'"
-#EnvironmentFile="/path/to/.env"
-
-
-[Install]
-
-WantedBy=multi-user.target
-```
-
-
-Activate the `app-name:service-a` service:
-
-```shell
-
-sudo ln -s \
-"${PWD}/config/systemd-units/app-name:service-a/app-name:service-a.service" \
-"/etc/systemd/system/app-name:service-a.service"
-
-sudo systemctl daemon-reload
-sudo systemctl enable "app-name:service-a.service"
-```
-
-Other commands to interact with the `app-name:service-a` service:
-
-```shell
-sudo systemctl status "app-name:service-a.service"
-sudo systemctl restart "app-name:service-a.service"
-sudo systemctl start "app-name:service-a.service"
-sudo systemctl stop "app-name:service-a.service"
-sudo systemctl disable "app-name:service-a.service"
-```
-
-### specific configuration for `app-name:service-a`
-
-Add the missing options in the `[Service]` section using the `systemctl edit` command. More details here: https://www.linode.com/docs/guides/introduction-to-systemctl/#editing-a-unit-file
-
-```shell
-export SYSTEMD_EDITOR=emacs
-sudo systemctl edit "app-name:service-a"
-```
-
-Add add something like this:
-```shell
-[Service]
-
-User=2adapt
-WorkingDirectory=/opt/2adapt/app-name
-ExecStart=/path/to/nix-shell --run "node packages/package-name/index.js" ./shell.nix
-
-```
-
-Reload the configuration and restart the service:
-```shell
-sudo systemctl daemon-reload
-sudo systemctl restart "app-name:service-a.service"
-sudo systemctl status "app-name:service-a.service"
-
-```
-
-We should now have a new directory in `/etc/systemd/system/app-name:service-a.service.d`
-
-### wrapper scripts for `service-a`
-
-```shell
-touch config/systemd-units/app-name:service-a/status.sh
-touch config/systemd-units/app-name:service-a/restart.sh
-touch config/systemd-units/app-name:service-a/stop.sh
-
-chmod 755 config/systemd-units/app-name:service-a/status.sh
-chmod 755 config/systemd-units/app-name:service-a/restart.sh
-chmod 755 config/systemd-units/app-name:service-a/stop.sh
-```
-
----
-
-```shell
-emacs config/systemd-units/app-name:service-a/status.sh
-```
-
-```shell
-#!/bin/sh
-
-sudo systemctl status "app-name:service-a"
-```
-
----
-
-```shell
-emacs config/systemd-units/app-name:service-a/restart.sh
-```
-
-```shell
-#!/bin/sh
-
-sudo systemctl restart "app-name:service-a"
-```
-
----
-
-```shell
-emacs config/systemd-units/app-name:service-a/stop.sh
-```
-
-```shell
-#!/bin/sh
-
-sudo systemctl stop "app-name:service-a"
-```
-
-
-
-### wrapper scripts for all services
-
-```shell
-touch config/systemd-units/status-all.sh
-touch config/systemd-units/restart-all.sh
-touch config/systemd-units/stop-all.sh
-
-chmod 755 config/systemd-units/status-all.sh
-chmod 755 config/systemd-units/restart-all.sh
-chmod 755 config/systemd-units/stop-all.sh
-```
-
----
-
-```shell
-emacs config/systemd-units/status-all.sh
-```
-
-```shell
-#!/bin/sh
-
-sudo systemctl status "app-name:service-a"
-#sudo systemctl status "app-name:service-b"
-```
-
----
-
-
-```shell
-emacs config/systemd-units/restart-all.sh
-```
-
-```shell
-#!/bin/sh
-
-sudo systemctl restart "app-name:service-a"
-#sudo systemctl restart "app-name:service-b"
-```
-
----
-
-
-```shell
-emacs config/systemd-units/stop-all.sh
-```
-
-```shell
-#!/bin/sh
-
-sudo systemctl stop "app-name:service-a"
-#sudo systemctl stop "app-name:service-b"
-```
