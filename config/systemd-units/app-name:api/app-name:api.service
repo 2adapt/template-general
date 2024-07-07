@@ -1,0 +1,56 @@
+[Unit]
+
+# https://www.freedesktop.org/software/systemd/man/systemd.unit.html
+
+# for clarity, Description should be the same as the symlink created in /etc/systemd/system
+Description="app-name:api"
+After=network.target
+After=postgresql.service
+Wants=postgresql.service
+
+
+[Service]
+
+# https://www.freedesktop.org/software/systemd/man/systemd.service.html
+# https://www.freedesktop.org/software/systemd/man/systemd.exec.html
+# https://www.freedesktop.org/software/systemd/man/systemd.resource-control.html
+
+Type=simple
+
+# these 3 options below will be configured separately
+User=pvieira
+WorkingDirectory=/home/pvieira/github/template-for-monorepo
+ExecStart=/nix/var/nix/profiles/default/bin/nix develop --command node packages/api2/server.js
+
+
+#ExecStop=...
+Restart=on-failure
+RestartSec=3s
+
+# if restarted is used, will try 3 times during a period of 30 seconds; if the process is not running after that
+# period, it enters the 'failed' state; for systemd v230 the following 2 options have been renamed and moved to 
+# the [Unit] section: StartLimitInterval and StartLimitBurst; more details here:
+# - https://serverfault.com/questions/736624/systemd-apiutomatic-restart-after-startlimitinterval
+# - https://lists.freedesktop.org/archives/systemd-devel/2017-July/039255.html
+
+StartLimitInterval=30s
+StartLimitBurst=3
+PrivateTmp=true
+ProtectSystem=full
+
+#StandardOutput=journal
+CPUAccounting=true
+MemoryAccounting=true
+TasksAccounting=true
+IOAccounting=true
+IPAccounting=true
+MemoryMax=1000M
+
+#Environment=ONE=123
+#Environment="TWO='with space'"
+#EnvironmentFile="/path/to/.env"
+
+
+[Install]
+
+WantedBy=multi-user.target
