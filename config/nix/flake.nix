@@ -3,7 +3,7 @@
 
 	inputs.devshell.url = "github:numtide/devshell";
 	inputs.flake-utils.url = "github:numtide/flake-utils";
-	inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
+	inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
 	#inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
 	outputs = { self, nixpkgs, devshell, flake-utils, ... }:
@@ -26,6 +26,7 @@
 					devshell.packages = [
 						pkgs.nodejs_20
 						pkgs.bat
+						pkgs.curl
 						# add other packages here
 					];
 
@@ -66,6 +67,7 @@
 							source $PRJ_ROOT/config/env.sh
 							set +a
 
+							# show basic informations about the database
 							psql -c "select current_database(), current_user, split_part(version(), ' ', 2) as version, inet_server_addr() as server_addr, inet_server_port() as server_port"
 
 							alias npm="echo npm is not available in this shell. Use pnpm instead."
