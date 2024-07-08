@@ -17,23 +17,26 @@ touch .npmrc
 mkdir -p config/nix
 
 touch config/nix/flake.nix
+touch config/nix/shell.nix
 
 # the env variables in this file will be available in the nix shell (below)
 touch config/env.sh.template
 ```
 
-It's convenient to have a shortcut for `config/nix/flake.nix` in the project root:
+It's convenient to have a shortcut for `config/nix/flake.nix` and `config/nix/shell.nix` in the project root:
 
 ```shell
 # note that we actually want the symlink to have a relative path
 ln -s ./config/nix/flake.nix flake.nix
+ln -s ./config/nix/shell.nix shell.nix
 
 # to enter the devshell it's necessary that flake.nix is already part of the repo
 git add ./config/nix/flake.nix 
 git add flake.nix
 
 # we can now enter the devshell
-nix develop
+nix develop # using the new nix cli and flakes
+nix-shell # using the classic nix cli
 ```
 
 ## 1.3 - caddy files
