@@ -7,7 +7,7 @@ A template to quickstart new projects at 2adapt.
 - Ubuntu 22.04 or similar 
 - the DNS is configured correctly for the associated domain (an "A record")
 - The following stuff should be installed in the server (via `apt` or some standalone installer):
-	- nix: https://github.com/DeterminateSystems/nix-installer
+	- Nix: https://github.com/DeterminateSystems/nix-installer
 	- Caddy: https://caddyserver.com/docs/install#debian-ubuntu-raspbian
 	- PostgreSQL: https://www.postgresql.org/download/linux/ubuntu/
 	- pnpm (?): https://pnpm.io/installation#on-posix-systems
@@ -197,7 +197,7 @@ pnpm add @sveltejs/adapter-node @poppanator/sveltekit-svg --save-dev
 pnpm run dev
 ```
 
-This template has adjustments in these configuration files:
+This template has adjustments to (or adds) these files:
 
 - `vite.config.js`
 - `svelte.config.js`
@@ -219,13 +219,13 @@ pnpm add @tailwindcss/forms @tailwindcss/typography @tailwindcss/aspect-ratio ta
 pnpm dlx tailwindcss init -p
 ```
 
-This template has adjustments (or creates) these configuration files:
+This template has adjustments to (or adds) these files:
 
 - `tailwind.config.js`
 - `src/app.css`
 - `src/routes/+layout.svelte`
 
-In `src/app.html` we might have to do some small adjustments:
+In `src/app.html` we might have to do a few more small adjustments:
 
 - add the Inter font: https://github.com/rsms/inter (details here: https://tailwindui.com/documentation#getting-set-up)
 - add `height:100%` to the `html` and `body` elements (via `h-full` from tailwind)
@@ -246,7 +246,7 @@ pnpm run build
 ncdu build
 ```
 
-The port of the application is read from a predefined env variable. By default it is `PORT`, but since the we have set `config.kit.adapter.envPrefix` as `"WEBAPP_"` in `svelte.config.js`, it should now be `WEBAPP_PORT`
+The port of the application is read from a predefined env variable. By default it is `PORT`, but since the we have set `config.kit.adapter.envPrefix` as `"WEBAPP_"` in `svelte.config.js`, it should now be `WEBAPP_PORT` (defined in `config/env.sh`)
 
 ```shell
 WEBAPP_PORT=3333 node build/index.js
@@ -258,7 +258,9 @@ Other env variables that might be of interest:
 - `ORIGIN` 
 - `BODY_SIZE_LIMIT`
 
-NOTE: "HTTP doesn't give SvelteKit a reliable way to know the URL that is currently being requested. If `adapter-node` can't correctly determine the URL of your deployment, you may experience this error when using form actions: "Cross-site POST form submissions are forbidden" 
+NOTE: 
+>"HTTP doesn't give SvelteKit a reliable way to know the URL that is currently being requested. If `adapter-node` can't correctly determine the URL of your deployment, you may experience this error when using form actions: "Cross-site POST form submissions are forbidden" 
+
 https://kit.svelte.dev/docs/adapter-node#environment-variables-origin-protocolheader-hostheader-and-port-header
 
 
