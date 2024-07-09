@@ -1,6 +1,6 @@
 ## 1 - Create the initial monorepo structure, to be managed by `pnpm` and `nix`:
 
-### 1.1 - Basic configuration files (pnpm):
+### 1.1 - Basic configuration files
 
 ```shell
 # verify that the working directory is the workspace root directory
@@ -19,7 +19,7 @@ mkdir -p config/nix
 touch config/nix/flake.nix
 touch config/nix/shell.nix
 
-# the env variables in this file will be available in the nix shell (below)
+# the env variables in this file will be loaded abd available in the nix shell (below)
 touch config/env.sh.template
 ```
 
@@ -30,13 +30,13 @@ It's convenient to have a shortcut for `config/nix/flake.nix` and `config/nix/sh
 ln -s ./config/nix/flake.nix flake.nix
 ln -s ./config/nix/shell.nix shell.nix
 
-# to enter the devshell it's necessary that flake.nix is already part of the repo
-git add ./config/nix/flake.nix 
+# to enter the devshell using the new nix cli it's necessary that flake.nix is already part of the repo
 git add flake.nix
+git add ./config/nix/flake.nix 
 
 # we can now enter the devshell
 nix develop # using the new nix cli and flakes
-nix-shell # using the classic nix cli
+nix-shell # or using the classic nix cli
 ```
 
 ## 1.3 - caddy files
@@ -98,43 +98,60 @@ We should now be able to load the webapp using `http://the-domain.local` (see st
 
 ## 2 - See the monorepo working
 
-### 2.1 - Create a dummy package in the workspace
+### 2.1 - Create a workspace package
 
 Reference: https://pnpm.io/workspaces
 
 ```shell
-mkdir -p packages/dummy
-cd packages/dummy
+mkdir -p packages/dummy-1
+cd packages/dummy-1
 
-# initialize the `dummy` package (create a package.json) and install some module from npm:
+# initialize the `dummy-1` workspace package (create a package.json) and install a module from npm:
 pnpm init
 pnpm add underscore
+
+# observe the effect on package.json and in the structure of the monorepo
+cat ./package.json
+
+# created or updated by pnpm
+cat ../../pnpm-lock.yaml 
+ls -la ../../node_modules
+
+# return to the workspace root
 cd ../..
 ```
 
 At this point:
-- `pnpm` should have created `pnpm-lock.yaml` and `node_modules` in the project root
-- this root `node_modules` has a `.pnpm` subdirectory, which is where the modules used in our monorepo packages are stored
+- `pnpm` should have created `pnpm-lock.yaml` and `node_modules` in the project/workspace root
+- this `node_modules` in the root has a `.pnpm` subdirectory (hidden directory), which is where the modules used in our workspace packages are actually stored
+- a symlink is created from `packages/dummy-1/node_modules/underscore` to the respective directory in `node_modules/.pnpm`.
 
-Before using `pnpm add <pkg>` we should change the working directory to the monorepo package that will use that dependency (example: `packages/dummy`), to make sure that pnpm will not created a `package.json` in the project root.
+IMPORTANT: before installing a dependency for a workspace package (`pnpm add <some-pkg>`) we should always change the working directory so that we are in the directory of that workspace package; that is, we should do this:
 
-### 2.2 - Add a dependency from the workspace
+```shell
+cd packages/dummy-1
+pnpm add <some-pkg>
+```
 
-A package in the workspace can be used as a dependency for other packages in the workspace:
+Otherwise we end up with a `package.json` in the workspace root, which we don't want.
+
+### 2.2 - Add some workspace package as a dependency to antoher workspace package
+
+A package in the workspace can also be used as a dependency:
 
 ```shell
 mkdir -p packages/dummy-2
 cd packages/dummy-2
 pnpm init
-pnpm add dummy --workspace
+
+# assuming that packages/dummy-1 was created before, we can use it as a dependency
+pnpm add dummy-1 --workspace
+
+# observe the internal linking done by pnpm
+cat ./package.json
+ls -l node_modules/
 cat ../../pnpm-lock.yaml | grep --context=9 dummy-2
 ```
-
-
-
-
-
-
 
 
 ## 3 - Initialize the sveltekit project
@@ -144,7 +161,7 @@ Reference: https://kit.svelte.dev/docs/creating-a-project
 ```shell
 mkdir -p packages/webapp
 cd packages/webapp
-pnpm create svelte@latest
+pnpm create svelte@latest  # choose "skeleton project", "jsdoc", "eslint" and "prettier"
 pnpm install
 
 # if necessary, add extra packages

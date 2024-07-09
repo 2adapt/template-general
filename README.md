@@ -8,9 +8,10 @@ A template to quickstart new projects at 2adapt. See more details in template-st
 - the DNS is configured correctly for the associated domain ("A record")
 - The following should be installed and available in the server:
 	- nix: https://github.com/DeterminateSystems/nix-installer
-	- pnpm: https://pnpm.io/installation#on-posix-systems
 	- Caddy: https://caddyserver.com/docs/install#debian-ubuntu-raspbian
 	- PostgreSQL: https://www.postgresql.org/download/linux/ubuntu/
+	- pnpm?: https://pnpm.io/installation#on-posix-systems
+		- no longer! pnpm is now installed via nix, using the `corepack` nix package
 
 ## Initial steps:
 

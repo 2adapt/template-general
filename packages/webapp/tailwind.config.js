@@ -1,4 +1,6 @@
-/** @type {import('tailwindcss').Config} */
+/**
+ * @type {import('tailwindcss').Config}
+ */
 
 //const defaultTheme = require('tailwindcss/defaultTheme')
 import defaultTheme from 'tailwindcss/defaultTheme';
@@ -14,14 +16,19 @@ export default {
 	theme: {
 		extend: {
 			fontFamily: {
-				// a complete list of feature settings seems to be available here: 
+				// a complete list of feature settings seems to be available here:
 				// https://github.com/semencov/tailwindcss-font-inter/blob/master/inter.json
-				// more info: 
+				// more info:
 				// https://www.designermarkdavis.com/Feed/filter/glyphs
 				// https://tailwindcss.com/docs/font-family#providing-default-font-settings
-				sans: [['Inter var', ...defaultTheme.fontFamily.sans].join(','), { fontFeatureSettings: '"cv02", "cv03", "cv04", "cv11"' }],
+				sans: [
+					['Inter var', ...defaultTheme.fontFamily.sans].join(','),
+					{
+						fontFeatureSettings: '"cv02", "cv03", "cv04", "cv11"',
+					},
+				],
 				// sans: ['Inter var', ...defaultTheme.fontFamily.sans],
-			}
+			},
 		},
 		debugScreens: {
 			prefix: '',
@@ -30,21 +37,20 @@ export default {
 	plugins: [
 		// require('@tailwindcss/forms'),
 		forms,
-		
+
 		// require('@tailwindcss/typography'),
 		typography,
-		
+
 		// require('@tailwindcss/aspect-ratio'),
 		aspectRatio,
-		
+
 		// require('tailwind-scrollbar')({ nocompatible: true }),
 		scrollbar({ nocompatible: true }),
-		
+
 		// require('tailwindcss-debug-screens'),
 		debugScreens,
-		
-		// require('daisyui'),
-		daisyui
-	],
-}
 
+		// require('daisyui'),
+		daisyui,
+	],
+};

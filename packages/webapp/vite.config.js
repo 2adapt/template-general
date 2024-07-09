@@ -86,7 +86,7 @@ let svgImporterOptions = {
 
 export default defineConfig({
 	plugins: [
-		sveltekit(), 
+		sveltekit(),
 		// svgImporter(svgImporterOptions)
 	],
 	server: {
@@ -97,6 +97,6 @@ export default defineConfig({
 	},
 	build: {
 		sourcemap: false,
-		minify: false
-	}
+		minify: false,
+	},
 });

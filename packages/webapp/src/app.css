@@ -9,9 +9,7 @@ html {
 */
 
 @layer components {
-
-  .scrollbar-custom {
-    @apply scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 scrollbar-thumb-rounded-full scrollbar-track-rounded-full;
-  }
-
+	.scrollbar-custom {
+		@apply scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 scrollbar-thumb-rounded-full scrollbar-track-rounded-full;
+	}
 }

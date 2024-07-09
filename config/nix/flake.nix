@@ -24,7 +24,8 @@
 					#imports = [ (pkgs.devshell.importTOML ../env.toml) ];
 
 					devshell.packages = [
-						pkgs.nodejs_20
+						pkgs.nodejs_22
+						pkgs.corepack_22
 						pkgs.bat
 						pkgs.curl
 						# add other packages here

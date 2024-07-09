@@ -10,7 +10,8 @@ let
 in
 pkgs.mkShell {
 	packages = [ 
-		pkgs.nodejs_20
+		pkgs.nodejs_22
+		pkgs.corepack_22
 		pkgs.bat
 		pkgs.curl
 		# add other packages here

@@ -1,8 +1,19 @@
 # reference: https://pnpm.io/pnpm-workspace_yaml
 
 packages:
-  # include all packages in direct subdirs of packages/
+  # we can include all direct subdirs of ./packages to belong to the workspace;
+  # this means that when we run "pnpm install" in the workspace root, it will
+  # install dependencies in all of these subdirectories
+
   - 'packages/*'
+
+  # or we can be more strict about which subdir belong to the worksapce;
+
+  #- 'packages/dummy-1'
+  #- 'packages/dummy-2'
+  #- 'packages/webapp'
+  #- 'packages/api'
+  #- 'packages/api2'
 
   # exclude packages that are inside test directories
   #- '!**/test/**'
