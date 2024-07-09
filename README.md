@@ -195,6 +195,7 @@ pnpm add @sveltejs/adapter-node @poppanator/sveltekit-svg --save-dev
 
 # run in dev mode
 pnpm run dev
+# node --run dev  # nodejs >= 22
 ```
 
 This template has adjustments to (or adds) these files:
@@ -241,6 +242,7 @@ We are using the node adapter (instead of the default auto adapter). Make a buil
 
 ```bash
 pnpm run build
+# node --run build  # nodejs >= 22
 
 # inspect the build output
 ncdu build
@@ -286,9 +288,11 @@ pnpm install
 
 # run in dev mode (has watch mode and pino-pretty logging)
 pnpm run dev
+# node --run dev  # nodejs >= 22
 
 # run in production mode (doesnt not have watch mode and pino-pretty logging)
 pnpm run start
+# node --run start  # nodejs >= 22
 
 # use the explicit path to the fastify cli; this will start the main plugin (which will load all the other plugins via `@fastify/autoload`)
 node_modules/.bin/fastify start --watch --port 4000 --options app.js
