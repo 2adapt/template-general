@@ -28,7 +28,7 @@ A template to quickstart new projects at 2adapt.
 
 ### 1.1 - Basic configuration files
 
-```shell
+```bash
 # verify that the working directory is the workspace root directory
 pwd
 
@@ -39,7 +39,7 @@ touch .npmrc
 
 ### 1.2 - nix files
 
-```shell
+```bash
 mkdir -p config/nix
 
 touch config/nix/flake.nix
@@ -51,7 +51,7 @@ touch config/env.sh.template
 
 It's convenient to have a shortcut for `config/nix/flake.nix` and `config/nix/shell.nix` in the project root:
 
-```shell
+```bash
 # note that we actually want the symlink to have a relative path
 ln -s ./config/nix/flake.nix flake.nix
 ln -s ./config/nix/shell.nix shell.nix
@@ -67,7 +67,7 @@ nix-shell # or using the classic nix cli
 
 ## 1.3 - caddy files
 
-```shell
+```bash
 mkdir -p config/caddy
 
 touch config/caddy/Caddyfile-dev
@@ -76,7 +76,7 @@ touch config/caddy/Caddyfile-prod
 
 For local development we can update the `/etc/hosts` to have a local domain:
 
-```shell
+```bash
 sudo emacs /etc/hosts
 ```
 
@@ -90,7 +90,7 @@ NOTE: sveltekit hot reload doesn't seem to work well with these local domains.
 
 The main caddy configuration should import one of the files above:
 
-```shell
+```bash
 sudo emacs /etc/caddy/Caddyfile
 ```
 
@@ -107,7 +107,7 @@ http://the-domain.local {
 
 Caddy must be reloaded after the main caddyfile (or one of the included Caddyfiles) are changed:
 
-```shell
+```bash
 sudo systemctl reload caddy
 sudo systemctl status caddy
 ```
@@ -128,7 +128,7 @@ We should now be able to load the webapp using `http://the-domain.local` (see st
 
 Reference: https://pnpm.io/workspaces
 
-```shell
+```bash
 mkdir -p packages/dummy-1
 cd packages/dummy-1
 
@@ -154,7 +154,7 @@ At this point:
 
 IMPORTANT: before installing a dependency for a workspace package (`pnpm add <some-pkg>`) we should always change the working directory so that we are in the directory of that workspace package; that is, we should do this:
 
-```shell
+```bash
 cd packages/dummy-1
 pnpm add <some-pkg>
 ```
@@ -165,7 +165,7 @@ Otherwise we end up with a `package.json` in the workspace root, which we don't 
 
 A package in the workspace can also be used as a dependency:
 
-```shell
+```bash
 mkdir -p packages/dummy-2
 cd packages/dummy-2
 pnpm init
@@ -184,7 +184,7 @@ cat ../../pnpm-lock.yaml | grep --context=9 dummy-2
 
 Reference: https://kit.svelte.dev/docs/creating-a-project
 
-```shell
+```bash
 mkdir -p packages/webapp
 cd packages/webapp
 pnpm create svelte@latest  # choose "skeleton project", "jsdoc", "eslint" and "prettier"
@@ -208,7 +208,7 @@ This template has adjustments to (or adds) these files:
 
 Reference: https://tailwindcss.com/docs/guides/sveltekit
 
-```shell
+```bash
 # main packages for tailwind
 pnpm add tailwindcss postcss autoprefixer --save-dev
 
@@ -239,7 +239,7 @@ Reference: https://kit.svelte.dev/docs/adapter-node
 
 We are using the node adapter (instead of the default auto adapter). Make a build and run it:
 
-```shell
+```bash
 pnpm run build
 
 # inspect the build output
@@ -248,7 +248,7 @@ ncdu build
 
 The port of the application is read from a predefined env variable. By default it is `PORT`, but since the we have set `config.kit.adapter.envPrefix` as `"WEBAPP_"` in `svelte.config.js`, it should now be `WEBAPP_PORT` (defined in `config/env.sh`)
 
-```shell
+```bash
 WEBAPP_PORT=3333 node build/index.js
 ```
 
@@ -273,7 +273,7 @@ https://kit.svelte.dev/docs/adapter-node#environment-variables-origin-protocolhe
 
 Reference: https://github.com/fastify/fastify-cli?tab=readme-ov-file#generate
 
-```shell
+```bash
 
 mkdir -p packages/api
 cd packages/api
@@ -309,7 +309,7 @@ Create a plugin with `fastify-cli`:
 
 NOTE: the output will be too opinionated.
 
-```shell
+```bash
 pnpm dlx fastify-cli generate-plugin --help
 pnpm dlx fastify-cli generate-plugin the-plugin
 
@@ -337,7 +337,7 @@ emacs config/systemd-units/app-name:api/app-name:api.service
 
 Copy-paste:
 
-```shell
+```bash
 
 [Unit]
 
@@ -399,7 +399,7 @@ WantedBy=multi-user.target
 
 Reload and activate the `app-name:api` service:
 
-```shell
+```bash
 
 # make sure that $PWD is the root directory for the project
 
@@ -418,7 +418,7 @@ Systemd will create a new link in `/etc/systemd/system/app-name:api.service` poi
 
 Other commands to interact with the `app-name:api` service:
 
-```shell
+```bash
 sudo systemctl status "app-name:api.service"
 journalctl --unit "app-name:api.service" --lines 500
 sudo systemctl restart "app-name:api.service"
@@ -432,7 +432,7 @@ sudo systemctl disable "app-name:api.service"
 
 Create a wrapper for `status` subcommand using a simple shell script:
 
-```shell
+```bash
 touch config/systemd-units/app-name:api/status.sh
 chmod 755 config/systemd-units/app-name:api/status.sh
 emacs config/systemd-units/app-name:api/status.sh
@@ -448,7 +448,7 @@ sudo systemctl status "app-name:api"
 
 We can now see the status of the `app-name:api` service using the shell script in the project:
 
-```shell
+```bash
 sudo config/systemd-units/app-name:api/status.sh
 ```
 
@@ -459,7 +459,7 @@ If this makes sense we can repeat for other systemd subcommands: `restart` and `
 
 Similar to the above, but considering all services related to this project:
 
-```shell
+```bash
 touch config/systemd-units/status-all.sh
 chmod 755 config/systemd-units/status-all.sh
 emacs config/systemd-units/status-all.sh
@@ -477,7 +477,7 @@ sudo systemctl status "app-name:service-c"
 
 We can now see the status of all services:
 
-```shell
+```bash
 sudo config/systemd-units/status-all.sh
 ```
 
@@ -486,14 +486,14 @@ sudo config/systemd-units/status-all.sh
 
 Add the missing options in the `[Service]` section using the `systemctl edit` command. More details here: https://www.linode.com/docs/guides/introduction-to-systemctl/#editing-a-unit-file
 
-```shell
+```bash
 export SYSTEMD_EDITOR=emacs
 sudo systemctl edit "app-name:api"
 ```
 
 Add add something like this:
 
-```shell
+```bash
 
 [Service]
 
@@ -505,7 +505,7 @@ ExecStart=/nix/var/nix/profiles/default/bin/nix-shell --command node packages/ap
 
 Any changes to the configuration files requires a reload and restart of the service:
 
-```shell
+```bash
 sudo systemctl daemon-reload
 sudo systemctl restart "app-name:api.service"
 sudo systemctl status "app-name:api.service"
@@ -524,19 +524,19 @@ We should now have a new directory in `/etc/systemd/system/app-name:api.service.
 
 # setup the api server (hapi)
 
-```shell
+```bash
 pnpm create @hapipal api  # equivalent to: npm init @hapipal api
 pnpm --filter="./api" install
 ```
 
 install other dependencies
-```shell
+```bash
 pnpm --filter="./api" add nodemon
 pnpm --filter="./api" --workspace add postgres-connection 
 ```
 
 in the scripts section of `api/package.json`, add a new `dev` script:
-```shell
+```bash
 ...
 "scripts": {
 	"dev": "nodemon server",
