@@ -330,7 +330,7 @@ Reference: ...
 
 Create the configuration file:
 
-```console
+```bash
 mkdir -p config/systemd-units/app-name:api
 emacs config/systemd-units/app-name:api/app-name:api.service
 ```
