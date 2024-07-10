@@ -1,24 +1,43 @@
+###########################
 # this file should be imported in /etc/caddy/Caddyfile
 # after any change is done here. we should reload the caddy service: `sudo systemctl reload caddy`
+###########################
+
+handle /api/v1 {
+	#respond "handle /api/v1" 200
+	skip_log
+	reverse_proxy http://localhost:5001
+}
 
 handle /api/v1/* {
+	#respond "handle /api/v1/*" 200
 	skip_log
 	reverse_proxy http://localhost:5001
 }
 
 handle /* {
+	#respond "handle /*" 200
 	skip_log
 	reverse_proxy http://localhost:5000
 }
 
-# static routes in dev: files are served by vite
 
-handle /static-v3/* {
+
+###########################
+# static routes in dev: handled by vite dev server
+###########################
+
+handle /static-prefix/* {
 	skip_log
 	reverse_proxy http://localhost:5000
 }
 
-# special paths related to the vite/sveltekit server in dev mode (can we configure it to have some kind of prefix?)
+
+
+###########################
+# special paths related to the vite/sveltekit dev server 
+# TODO: can we do something in vite to have some kind of prefix?
+###########################
 
 handle /@fs/* {
 	skip_log
@@ -50,7 +69,11 @@ handle /src/* {
 	reverse_proxy http://localhost:8012
 }
 
+
+
+############################
 # debug
+############################
 
 handle /caddy-ping {
 	respond "hello world from Caddyfile-dev" 200

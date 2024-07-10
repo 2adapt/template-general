@@ -1,27 +1,44 @@
+###########################
 # this file should be imported in /etc/caddy/Caddyfile
 # after any change is done here. we should reload the caddy service: `sudo systemctl reload caddy`
+###########################
+
+handle /api/v1 {
+	#respond "handle /api/v1" 200
+	skip_log
+	reverse_proxy http://localhost:5001
+}
 
 handle /api/v1/* {
+	#respond "handle /api/v1/*" 200
 	skip_log
 	reverse_proxy http://localhost:5001
 }
 
 handle /* {
+	#respond "handle /*" 200
 	skip_log
 	reverse_proxy http://localhost:5000
 }
 
-# static routes in prod: files are served by caddy directly (files are available in the build directory)
+
+
+###########################
+# static routes in prod: handled directly by caddy
+###########################
 
 handle /static-prefix/* {
 	uri strip_prefix /static-prefix
 	file_server {
-		browse
+		# note that root includes "/static-prefix" because we are using "uri strip_prefix"
 		root /home/pvieira/github/odslocal-v3/packages/webapp/build/client/static-prefix
+		browse
 	}
 }
 
+############################
 # debug
+############################
 
 handle /caddy-ping {
 	respond "hello world from Caddyfile-prod" 200
