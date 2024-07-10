@@ -4,21 +4,21 @@
 ###########################
 
 handle /api/v1 {
-	#respond "handle /api/v1" 200
+	#respond "handle /api/v1 @ {time.now.unix}" 200
 	skip_log
-	reverse_proxy http://localhost:5001
+	reverse_proxy http://localhost:{args[N]}
 }
 
 handle /api/v1/* {
-	#respond "handle /api/v1/*" 200
+	#respond "handle /api/v1/* @ {time.now.unix}" 200
 	skip_log
-	reverse_proxy http://localhost:5001
+	reverse_proxy http://localhost:{args[N]}
 }
 
 handle /* {
-	#respond "handle /*" 200
+	#respond "handle /* @ {time.now.unix}" 200
 	skip_log
-	reverse_proxy http://localhost:5000
+	reverse_proxy http://localhost:{args[N]}
 }
 
 
@@ -29,7 +29,41 @@ handle /* {
 
 handle /static-prefix/* {
 	skip_log
-	reverse_proxy http://localhost:5000
+	reverse_proxy http://localhost:{args[N]}
+}
+
+
+
+###########################
+# directories with static files that should be served by caddy directly
+###########################
+
+handle /upload {
+	#respond "handle /upload @ {time.now.unix}" 200
+
+	file_server {
+		root /home/pvieira/github/mapserver
+		browse
+	}
+}
+
+handle /upload {
+	#respond "handle /upload @ {time.now.unix}" 200
+
+	file_server {
+		root /home/pvieira/github/mapserver
+		browse
+	}
+}
+
+
+handle /upload/* {
+	#respond "handle /upload/* @ {time.now.unix}" 200
+
+	file_server {
+		root /path/to/dir # TODO: use parameters?
+		browse
+	}
 }
 
 
@@ -41,32 +75,32 @@ handle /static-prefix/* {
 
 handle /@fs/* {
 	skip_log
-	reverse_proxy http://localhost:8012
+	reverse_proxy http://localhost:{args[N]}
 }
 
 handle /@vite/* {
 	skip_log
-	reverse_proxy http://localhost:8012
+	reverse_proxy http://localhost:{args[N]}
 }
 
 handle /@id/* {
 	skip_log
-	reverse_proxy http://localhost:8012
+	reverse_proxy http://localhost:{args[N]}
 }
 
 handle /node_modules/* {
 	skip_log
-	reverse_proxy http://localhost:8012
+	reverse_proxy http://localhost:{args[N]}
 }
 
 handle /.svelte-kit/* {
 	skip_log
-	reverse_proxy http://localhost:8012
+	reverse_proxy http://localhost:{args[N]}
 }
 
 handle /src/* {
 	skip_log
-	reverse_proxy http://localhost:8012
+	reverse_proxy http://localhost:{args[N]}
 }
 
 
@@ -75,16 +109,15 @@ handle /src/* {
 # debug
 ############################
 
-handle /caddy-ping {
-	respond "hello world from Caddyfile-dev" 200
-}
-
 handle /caddy-ping/* {
 	respond "
 
 ===
-placeholders: https://caddyserver.com/docs/caddyfile/concepts#placeholders
+placeholders reference: https://caddyserver.com/docs/caddyfile/concepts#placeholders
 
+hostname: {system.hostname} 
+wd: {system.wd}
+system: {system.arch}-{system.os}
 remote_host: {remote_host}
 client_ip: {client_ip}
 dir: {dir}

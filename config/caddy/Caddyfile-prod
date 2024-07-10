@@ -4,52 +4,81 @@
 ###########################
 
 handle /api/v1 {
-	#respond "handle /api/v1" 200
+	#respond "handle /api/v1 @ {time.now.unix}" 200
 	skip_log
-	reverse_proxy http://localhost:5001
+	reverse_proxy http://localhost:{args[N]}
 }
 
 handle /api/v1/* {
-	#respond "handle /api/v1/*" 200
+	#respond "handle /api/v1/* @ {time.now.unix}" 200
 	skip_log
-	reverse_proxy http://localhost:5001
+	reverse_proxy http://localhost:{args[N]}
 }
 
 handle /* {
-	#respond "handle /*" 200
+	#respond "handle /* @ {time.now.unix}" 200
 	skip_log
-	reverse_proxy http://localhost:5000
+	reverse_proxy http://localhost:{args[N]}
 }
 
 
 
 ###########################
-# static routes in prod: handled directly by caddy
+# static routes from svelte-kit in prod: handled directly by caddy
 ###########################
 
 handle /static-prefix/* {
 	uri strip_prefix /static-prefix
 	file_server {
-		# note that root includes "/static-prefix" because we are using "uri strip_prefix"
-		root /home/pvieira/github/odslocal-v3/packages/webapp/build/client/static-prefix
+		# since we are using uri strip_prefix, the argument for root should be the full path: /path/to/projeto-root/something/else/static-prefix
+		root {args[N]}
 		browse
 	}
 }
+
+
+
+###########################
+# directories with static files that should be served by caddy directly
+###########################
+
+handle /upload {
+	#respond "handle /upload @ {time.now.unix}" 200
+
+	uri strip_prefix /upload
+	file_server {
+		# since we are using uri strip_prefix, the argument for root should be the full path: /path/to/upload
+		root {args[3]}
+		browse
+	}
+}
+
+handle /upload/* {
+	#respond "handle /upload/* @ {time.now.unix}" 200
+
+	uri strip_prefix /upload
+	file_server {
+		# since we are using uri strip_prefix, the argument for root should be the full path: /path/to/upload
+		root {args[3]}
+		browse
+	}
+}
+
+
 
 ############################
 # debug
 ############################
 
-handle /caddy-ping {
-	respond "hello world from Caddyfile-prod" 200
-}
-
 handle /caddy-ping/* {
 	respond "
 
 ===
-placeholders: https://caddyserver.com/docs/caddyfile/concepts#placeholders
+placeholders reference: https://caddyserver.com/docs/caddyfile/concepts#placeholders
 
+hostname: {system.hostname} 
+wd: {system.wd}
+system: {system.arch}-{system.os}
 remote_host: {remote_host}
 client_ip: {client_ip}
 dir: {dir}
