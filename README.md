@@ -9,7 +9,16 @@ A template to quickstart new projects at 2adapt.
 - The following stuff should be installed in the server (via `apt` or some standalone installer):
 	- Nix: https://github.com/DeterminateSystems/nix-installer
 	- Caddy: https://caddyserver.com/docs/install#debian-ubuntu-raspbian
+		- ```
+which caddy
+sudo systemctl status caddy
+caddy version
+		```
 	- PostgreSQL: https://www.postgresql.org/download/linux/ubuntu/
+		- ```
+ls -l /etc/postgresql
+sudo systemctl status postgresql
+		```
 	- pnpm (?): https://pnpm.io/installation#on-posix-systems
 		- no longer! pnpm is now installed via nix, using the `corepack` nix package
 
@@ -518,6 +527,18 @@ sudo systemctl status "app-name:api.service"
 We should now have a new directory in `/etc/systemd/system/app-name:api.service.d`.
 
 
+
+## 6 - Initial deployment (manual)
+
+```bash
+git clone user/repo
+cd repo
+cp config/env.sh.template config/env.sh
+emacs config/env.sh
+nix-shell
+pnpm install
+# check assumptions about the server: nix, caddy, postgresql
+```
 
 
 --------------------------------------------------------------------------
