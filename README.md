@@ -9,8 +9,7 @@ A template to quickstart new projects at 2adapt.
 - The following stuff should be installed in the server (via `apt` or some standalone installer):
 	- Nix: https://github.com/DeterminateSystems/nix-installer
 	- Caddy: https://caddyserver.com/docs/install#debian-ubuntu-raspbian
-		- ```which caddy; sudo systemctl status caddy; caddy version
-```
+		- ```which caddy; sudo systemctl status caddy; caddy version```
 	- PostgreSQL: https://www.postgresql.org/download/linux/ubuntu/
 		- ```
 ls -l /etc/postgresql
