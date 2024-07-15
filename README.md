@@ -8,15 +8,11 @@ A template to quickstart new projects at 2adapt.
 - the DNS is configured correctly for the associated domain (an "A record")
 - The following stuff should be installed in the server (via `apt` or some standalone installer):
 	- Nix: https://github.com/DeterminateSystems/nix-installer
+		- `which nix; which nix-shell; nix --version`
 	- Caddy: https://caddyserver.com/docs/install#debian-ubuntu-raspbian
-		- ```
-		which caddy; sudo systemctl status caddy; caddy version
-		```
+		- `which caddy; sudo systemctl status caddy; caddy version`
 	- PostgreSQL: https://www.postgresql.org/download/linux/ubuntu/
-		- ```
-ls -l /etc/postgresql
-sudo systemctl status postgresql
-		```
+		- `ls -l /etc/postgresql; sudo systemctl status postgresql`
 	- pnpm (?): https://pnpm.io/installation#on-posix-systems
 		- no longer! pnpm is now installed via nix, using the `corepack` nix package
 
@@ -416,9 +412,17 @@ Reload and activate the `app-name:api` service:
 
 echo $PWD
 
+# verify again
+ls -l "${PWD}/config/systemd-units/app-name:api/app-name:api.service"
+cat "${PWD}/config/systemd-units/app-name:api/app-name:api.service"
+
 sudo ln -s \
 "${PWD}/config/systemd-units/app-name:api/app-name:api.service" \
 "/etc/systemd/system/app-name:api.service"
+
+# verify again
+ls -l "/etc/systemd/system/app-name:api.service"
+cat "/etc/systemd/system/app-name:api.service"
 
 sudo systemctl daemon-reload
 sudo systemctl enable "app-name:api.service"
@@ -533,9 +537,19 @@ git clone user/repo
 cd repo
 cp config/env.sh.template config/env.sh
 emacs config/env.sh
+
+# enter the shell and install depedencies
 nix-shell
 pnpm install
+
 # check assumptions about the server: nix, caddy, postgresql
+
+# manually start all the services (copy-paste from ExecStart)
+
+# import config/caddy/Caddyfile-prod in /etc/caddy/Caddyfile
+
+# setup the database
+
 ```
 
 
