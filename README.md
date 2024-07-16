@@ -21,9 +21,9 @@ A template to quickstart new projects at 2adapt.
 - set the env variables: `cp config/env.sh.template config/env.sh`
 - enter the nix dev shell: `nix-shell` (classic nix cli) or `nix develop` (modern nix cli)
 - install the dependencies at the project root: `pnpm install` (if we are in production, make sure `pnpm-lock.yaml` was not modified - it shouldn't if we have `CI="false"` in `config/env.sh`)
-- check that the sveltekit app can be built and started: `cd packages/webapp; node --run build; node build/index.js;`
+- check that the SvelteKit app can be built and started: `cd packages/webapp; node --run build; node build/index.js;`
 - check that the api server can be started: `cd packages/api; node src/server.js;`
-- add the website to the caddy configuration (see details in section 1.3)
+- add the project Caddyfile to the main Caddyfile (see details in section 1.3)
 
 # Template steps
 
@@ -73,25 +73,24 @@ nix-shell # or using the classic nix cli
 ```bash
 mkdir -p config/caddy
 
-touch config/caddy/Caddyfile-dev
-touch config/caddy/Caddyfile-prod
+touch config/caddy/Caddyfile
 ```
 
-For local development we can update the `/etc/hosts` to have a local domain:
+For local development: update the `/etc/hosts` to have a local domain:
 
 ```bash
 sudo emacs /etc/hosts
 ```
 
-Append a lines similar to this:
+Append a line like this:
 
 ```
 127.0.0.1 the-domain.local
 ```
 
-NOTE: sveltekit hot reload doesn't seem to work well with these local domains.
+NOTE: in some cases the "hot reload" in SvelteKit doesn't seem to work well with these local domains.
 
-The main caddy configuration should import one of the files above:
+The main caddy configuration should import the Caddyfile in the project:
 
 ```bash
 sudo emacs /etc/caddy/Caddyfile
@@ -101,9 +100,12 @@ sudo emacs /etc/caddy/Caddyfile
 
 # add a new site block
 
-http://the-domain.local {
-	import /path/to/project-root/config/caddy/Caddyfile-dev
-	#import /path/to/project-root/config/caddy/Caddyfile-prod
+the-domain.local {
+
+	# args[0] = WEBAPP_PORT = 3000
+	# args[1] = API_PORT = 3001
+	# args[2] = PROJECT_ROOT_DIR = "/path/to/project"
+	import /path/to/project/config/caddy/Caddyfile 3000 3001 "/path/to/project"
 }
 
 ```
@@ -115,21 +117,17 @@ sudo systemctl reload caddy
 sudo systemctl status caddy
 ```
 
-We should now be able to load the webapp using `http://the-domain.local` (see step 3)
+We should now be able to load the webapp using `https://the-domain.local/caddy-debug/hello` (see step 3)
 
 
 
-
-
-
-
-
-
-## 2 - See the monorepo working
+## 2 - Monorepo management with `pnpm`
 
 ### 2.1 - Create a workspace package
 
 Reference: https://pnpm.io/workspaces
+
+A directory in `./packages` is a "workspace package".
 
 ```bash
 mkdir -p packages/dummy-1
@@ -151,6 +149,7 @@ cd ../..
 ```
 
 At this point:
+
 - `pnpm` should have created `pnpm-lock.yaml` and `node_modules` in the project/workspace root
 - this `node_modules` in the root has a `.pnpm` subdirectory (hidden directory), which is where the modules used in our workspace packages are actually stored
 - a symlink is created from `packages/dummy-1/node_modules/underscore` to the respective directory in `node_modules/.pnpm`.
@@ -164,7 +163,7 @@ pnpm add <some-pkg>
 
 Otherwise we end up with a `package.json` in the workspace root, which we don't want.
 
-### 2.2 - Add some workspace package as a dependency to antoher workspace package
+### 2.2 - Using an existing local workspace package as a dependency
 
 A package in the workspace can also be used as a dependency:
 
@@ -173,7 +172,7 @@ mkdir -p packages/dummy-2
 cd packages/dummy-2
 pnpm init
 
-# assuming that packages/dummy-1 was created before, we can use it as a dependency
+# assuming that packages/dummy-1 was created before, we can now use it as a dependency
 pnpm add dummy-1 --workspace
 
 # observe the internal linking done by pnpm
@@ -183,7 +182,7 @@ cat ../../pnpm-lock.yaml | grep --context=9 dummy-2
 ```
 
 
-## 3 - Initialize the sveltekit project
+## 3 - SvelteKit
 
 Reference: https://kit.svelte.dev/docs/creating-a-project
 
@@ -208,12 +207,12 @@ This template has adjustments to (or adds) these files:
 - `src/static` (all static assets should be placed in `src/static/static-prefix`)
 
 
-### 3.1 - Install tailwind in the sveltekit app
+### 3.1 - Install TailwindCSS in the SvelteKit app
 
 Reference: https://tailwindcss.com/docs/guides/sveltekit
 
 ```bash
-# main packages for tailwind
+# main packages for TailwindCSS
 pnpm add tailwindcss postcss autoprefixer --save-dev
 
 # other useful plugins that we use (tailwindUI, and others)
@@ -237,7 +236,7 @@ In `src/app.html` we might have to do a few more small adjustments:
 - remove/disable the `data-sveltekit-preload-data` attribute
 
 
-### 3.2 - Make a test build
+### 3.2 - Verify that the build is working
 
 Reference: https://kit.svelte.dev/docs/adapter-node
 
@@ -249,12 +248,15 @@ pnpm run build
 
 # inspect the build output
 ncdu build
+
+# run
+node build/index.js
 ```
 
-The port of the application is read from a predefined env variable. By default it is `PORT`, but since the we have set `config.kit.adapter.envPrefix` as `"WEBAPP_"` in `svelte.config.js`, it should now be `WEBAPP_PORT` (defined in `config/env.sh`)
+The port of the application is read from a predefined env variable. By default it is `PORT`, but since the we have set `config.kit.adapter.envPrefix` as `"WEBAPP_"` in `svelte.config.js`, it should now be `WEBAPP_PORT` (which should be defined in `config/env.sh`)
 
 ```bash
-WEBAPP_PORT=3333 node build/index.js
+WEBAPP_PORT=9999 node build/index.js
 ```
 
 Other env variables that might be of interest: 
@@ -274,7 +276,7 @@ https://kit.svelte.dev/docs/adapter-node#environment-variables-origin-protocolhe
 
 
 
-## 4 - Initialize the api project
+## 4 - API
 
 Reference: https://github.com/fastify/fastify-cli?tab=readme-ov-file#generate
 
