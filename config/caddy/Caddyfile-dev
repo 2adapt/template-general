@@ -3,33 +3,54 @@
 # after any change is done here. we should reload the caddy service: `sudo systemctl reload caddy`
 ###########################
 
+
+###########################
+# webapp routes in dev: handled by vite dev server
+###########################
+
+handle /* {
+	#respond "handle /* @ {time.now.unix}" 200
+	skip_log
+	reverse_proxy http://localhost:{args[0]}
+}
+
+# static routes relative to the webapp: option 1 - handled by caddy
+
+handle /static-prefix/* {
+	#respond "handle /static-prefix/* @ {time.now.unix}" 200
+
+	uri strip_prefix /static-prefix
+	file_server {
+		# since we are using uri strip_prefix, the argument for root should be 
+		# the full path to the directory
+		root {args[2]}/packages/webapp/static/static-prefix
+		browse
+	}
+}
+
+# static routes relative to the webapp: option 2 - handled by vite dev server
+
+#handle /static-prefix/* {
+#	skip_log
+#	reverse_proxy http://localhost:{args[0]}
+#}
+
+
+
+###########################
+# api routes in dev
+###########################
+
 handle /api/v1 {
 	#respond "handle /api/v1 @ {time.now.unix}" 200
 	skip_log
-	reverse_proxy http://localhost:{args[N]}
+	reverse_proxy http://localhost:{args[1]}
 }
 
 handle /api/v1/* {
 	#respond "handle /api/v1/* @ {time.now.unix}" 200
 	skip_log
-	reverse_proxy http://localhost:{args[N]}
-}
-
-handle /* {
-	#respond "handle /* @ {time.now.unix}" 200
-	skip_log
-	reverse_proxy http://localhost:{args[N]}
-}
-
-
-
-###########################
-# static routes in dev: handled by vite dev server
-###########################
-
-handle /static-prefix/* {
-	skip_log
-	reverse_proxy http://localhost:{args[N]}
+	reverse_proxy http://localhost:{args[1]}
 }
 
 
@@ -41,27 +62,23 @@ handle /static-prefix/* {
 handle /upload {
 	#respond "handle /upload @ {time.now.unix}" 200
 
+	#uri strip_prefix /upload
 	file_server {
-		root /home/pvieira/github/mapserver
+		# since we are using uri strip_prefix, the argument for root should be 
+		# the full path to the directory: /path/to/root/upload
+		root {args[2]}/upload
 		browse
 	}
 }
-
-handle /upload {
-	#respond "handle /upload @ {time.now.unix}" 200
-
-	file_server {
-		root /home/pvieira/github/mapserver
-		browse
-	}
-}
-
 
 handle /upload/* {
 	#respond "handle /upload/* @ {time.now.unix}" 200
 
+	#uri strip_prefix /upload
 	file_server {
-		root /path/to/dir # TODO: use parameters?
+		# since we are using uri strip_prefix, the argument for root should be 
+		# the full path to the directory: /path/to/root/upload
+		root {args[2]}/upload
 		browse
 	}
 }
@@ -71,38 +88,40 @@ handle /upload/* {
 ###########################
 # special paths related to the vite/sveltekit dev server 
 # TODO: can we do something in vite to have some kind of prefix?
+# NOTE: after the update this doesn't seem to be necessary anymore
 ###########################
 
-handle /@fs/* {
-	skip_log
-	reverse_proxy http://localhost:{args[N]}
-}
-
-handle /@vite/* {
-	skip_log
-	reverse_proxy http://localhost:{args[N]}
-}
-
-handle /@id/* {
-	skip_log
-	reverse_proxy http://localhost:{args[N]}
-}
-
-handle /node_modules/* {
-	skip_log
-	reverse_proxy http://localhost:{args[N]}
-}
-
-handle /.svelte-kit/* {
-	skip_log
-	reverse_proxy http://localhost:{args[N]}
-}
-
-handle /src/* {
-	skip_log
-	reverse_proxy http://localhost:{args[N]}
-}
-
+#
+#handle /@fs/* {
+#	skip_log
+#	reverse_proxy http://localhost:{args[0]}
+#}
+#
+#handle /@vite/* {
+#	skip_log
+#	reverse_proxy http://localhost:{args[0]}
+#}
+#
+#handle /@id/* {
+#	skip_log
+#	reverse_proxy http://localhost:{args[0]}
+#}
+#
+#handle /node_modules/* {
+#	skip_log
+#	reverse_proxy http://localhost:{args[0]}
+#}
+#
+#handle /.svelte-kit/* {
+#	skip_log
+#	reverse_proxy http://localhost:{args[0]}
+#}
+#
+#handle /src/* {
+#	skip_log
+#	reverse_proxy http://localhost:{args[0]}
+#}
+#
 
 
 ############################
