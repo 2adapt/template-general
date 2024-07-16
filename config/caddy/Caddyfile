@@ -1,134 +1,163 @@
-###########################
-# this file should be imported in /etc/caddy/Caddyfile
+###############################################################################
+# this file should be imported in the main Caddyfile (/etc/caddy/Caddyfile) like this:
+#
+# the-domain.local {
+#
+#	# args[0] = WEBAPP_PORT = 3000
+#	# args[1] = API_PORT = 3001
+#	# args[2] = PROJECT_ROOT_DIR = "/path/to/project"
+#	import /path/to/project/config/caddy/Caddyfile 3000 3001 "/path/to/project"
+# }
+#
 # after any change is done here. we should reload the caddy service: `sudo systemctl reload caddy`
-###########################
+###############################################################################
 
 
-###########################
-# webapp routes in dev: handled by vite dev server
-###########################
+
+###############################################################################
+# webapp routes
+###############################################################################
 
 handle /* {
-	#respond "handle /* @ {time.now.unix}" 200
+	#respond "handle /*" 200
+
 	skip_log
 	reverse_proxy http://localhost:{args[0]}
 }
 
-# static routes relative to the webapp: option 1 - handled by caddy
+
+###############################################################################
+# webapp routes - static files (option 1 - handled by caddy - this is the preferred option)
+###############################################################################
 
 handle /static-prefix/* {
-	#respond "handle /static-prefix/* @ {time.now.unix}" 200
+	#respond "handle /static-prefix/*" 200
 
+	skip_log
 	uri strip_prefix /static-prefix
 	file_server {
-		# since we are using uri strip_prefix, the argument for root should be 
-		# the full path to the directory
+
+		# {args[2]} is the path to the project root directory; uri strip_prefix is used,
+		# so the argument for the root directive should take that into account
 		root {args[2]}/packages/webapp/static/static-prefix
 		browse
 	}
 }
 
-# static routes relative to the webapp: option 2 - handled by vite dev server
+
+###############################################################################
+# webapp routes - static files (option 2 - handled by svelte)
+###############################################################################
 
 #handle /static-prefix/* {
+#
 #	skip_log
 #	reverse_proxy http://localhost:{args[0]}
 #}
 
 
-
-###########################
-# api routes in dev
-###########################
+###############################################################################
+# api routes
+###############################################################################
 
 handle /api/v1 {
-	#respond "handle /api/v1 @ {time.now.unix}" 200
+	#respond "handle /api/v1" 200
+
 	skip_log
 	reverse_proxy http://localhost:{args[1]}
 }
 
 handle /api/v1/* {
-	#respond "handle /api/v1/* @ {time.now.unix}" 200
+	#respond "handle /api/v1/*" 200
+
 	skip_log
 	reverse_proxy http://localhost:{args[1]}
 }
 
 
-
-###########################
+###############################################################################
 # directories with static files that should be served by caddy directly
-###########################
+###############################################################################
 
 handle /upload {
-	#respond "handle /upload @ {time.now.unix}" 200
+	#respond "handle /upload" 200
 
-	#uri strip_prefix /upload
+	skip_log
+	uri strip_prefix /upload
 	file_server {
-		# since we are using uri strip_prefix, the argument for root should be 
-		# the full path to the directory: /path/to/root/upload
+
+		# {args[2]} is the path to the project root directory; uri strip_prefix is used,
+		# so the argument for the root directive should take that into account
 		root {args[2]}/upload
 		browse
 	}
 }
 
 handle /upload/* {
-	#respond "handle /upload/* @ {time.now.unix}" 200
+	#respond "handle /upload/*" 200
 
-	#uri strip_prefix /upload
+	uri strip_prefix /upload
 	file_server {
-		# since we are using uri strip_prefix, the argument for root should be 
-		# the full path to the directory: /path/to/root/upload
+
+		# {args[2]} is the path to the project root directory; uri strip_prefix is used,
+		# so the argument for the root directive should take that into account
 		root {args[2]}/upload
 		browse
 	}
 }
 
 
-
-###########################
+###############################################################################
 # special paths related to the vite/sveltekit dev server 
-# TODO: can we do something in vite to have some kind of prefix?
 # NOTE: after the update this doesn't seem to be necessary anymore
-###########################
+# TODO: can we do something in vite to have some kind of prefix?
+###############################################################################
 
 #
 #handle /@fs/* {
+#
 #	skip_log
 #	reverse_proxy http://localhost:{args[0]}
 #}
 #
 #handle /@vite/* {
+#
 #	skip_log
 #	reverse_proxy http://localhost:{args[0]}
 #}
 #
 #handle /@id/* {
+#
 #	skip_log
 #	reverse_proxy http://localhost:{args[0]}
 #}
 #
 #handle /node_modules/* {
+#
 #	skip_log
 #	reverse_proxy http://localhost:{args[0]}
 #}
 #
 #handle /.svelte-kit/* {
+#
 #	skip_log
 #	reverse_proxy http://localhost:{args[0]}
 #}
 #
 #handle /src/* {
+#
 #	skip_log
 #	reverse_proxy http://localhost:{args[0]}
 #}
 #
 
 
-############################
-# debug
-############################
+###############################################################################
+# debug routes
+###############################################################################
 
-handle /caddy-ping/* {
+handle /caddy-debug/* {
+
 	respond "
 
 ===
