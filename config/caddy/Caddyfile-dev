@@ -1,0 +1,37 @@
+###############################################################################
+# specific routes for dev
+#
+# this file should be imported in the main Caddyfile (/etc/caddy/Caddyfile) like this:
+#
+# the-domain.local {
+#
+#	# args[0] = WEBAPP_PORT = 3000
+#	# args[1] = API_PORT = 3001
+#	# args[2] = PROJECT_ROOT_DIR = "/path/to/project"
+#	import /path/to/project/config/caddy/Caddyfile-dev 3000 3001 "/path/to/project"
+# }
+#
+# after any change is done here. we should reload the caddy service: `sudo systemctl reload caddy`
+###############################################################################
+
+
+
+###############################################################################
+# webapp routes (SvelteKit) - static files (served directly by caddy, instead of using the reverse_proxy)
+###############################################################################
+
+handle /static-prefix/* {
+	#respond "handle /static-prefix/*" 200
+
+	skip_log
+	uri strip_prefix /static-prefix
+	file_server {
+
+		# {args[2]} is the path to the project root directory; uri strip_prefix is used,
+		# so the argument for the root directive should take that into account;
+		# the dev version uses the original static directory
+		root {args[2]}/packages/webapp/static/static-prefix
+		browse
+	}
+}
+

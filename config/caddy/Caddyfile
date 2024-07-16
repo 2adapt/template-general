@@ -15,7 +15,7 @@
 
 
 ###############################################################################
-# webapp routes
+# webapp routes (SvelteKit)
 ###############################################################################
 
 handle /* {
@@ -26,38 +26,9 @@ handle /* {
 }
 
 
-###############################################################################
-# webapp routes - static files (option 1 - handled by caddy - this is the preferred option)
-###############################################################################
-
-handle /static-prefix/* {
-	#respond "handle /static-prefix/*" 200
-
-	skip_log
-	uri strip_prefix /static-prefix
-	file_server {
-
-		# {args[2]} is the path to the project root directory; uri strip_prefix is used,
-		# so the argument for the root directive should take that into account
-		root {args[2]}/packages/webapp/static/static-prefix
-		browse
-	}
-}
-
 
 ###############################################################################
-# webapp routes - static files (option 2 - handled by svelte)
-###############################################################################
-
-#handle /static-prefix/* {
-#
-#	skip_log
-#	reverse_proxy http://localhost:{args[0]}
-#}
-
-
-###############################################################################
-# api routes
+# api routes (fastify)
 ###############################################################################
 
 handle /api/v1 {
@@ -75,8 +46,9 @@ handle /api/v1/* {
 }
 
 
+
 ###############################################################################
-# directories with static files that should be served by caddy directly
+# separate directories with static files (served directly by caddy)
 ###############################################################################
 
 handle /upload {
@@ -105,6 +77,7 @@ handle /upload/* {
 		browse
 	}
 }
+
 
 
 ###############################################################################
@@ -150,6 +123,7 @@ handle /upload/* {
 #	reverse_proxy http://localhost:{args[0]}
 #}
 #
+
 
 
 ###############################################################################
