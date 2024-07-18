@@ -22,11 +22,13 @@ A template to quickstart new projects at 2adapt.
 ```bash
 cp config/env.sh.template config/env.sh
 emacs config/env.sh
-```bash
+```
 2. enter the nix dev shell: 
 ```bash
-nix-shell  # classic nix cli
-# nix develop  # modern nix cli
+# classic nix cli
+nix-shell  
+# modern nix cli
+nix develop  
 ```
 3. install the dependencies at the project root; if we are in production: make sure `pnpm-lock.yaml` was not modified after the installation (it shouldn't if we have `CI="false"` in `config/env.sh`)
 ```bash
