@@ -18,8 +18,16 @@ A template to quickstart new projects at 2adapt.
 
 # Initial steps:
 
-- set the env variables: `cp config/env.sh.template config/env.sh`
-- enter the nix dev shell: `nix-shell` (classic nix cli) or `nix develop` (modern nix cli)
+- 1. set the env variables: 
+```bash
+cp config/env.sh.template config/env.sh
+emacs config/env.sh
+```bash
+- 2. enter the nix dev shell: 
+```bash
+nix-shell  # classic nix cli
+# nix develop  # modern nix cli
+```
 - install the dependencies at the project root: `pnpm install`; if we are in production: make sure `pnpm-lock.yaml` was not modified after the installation (it shouldn't if we have `CI="false"` in `config/env.sh`)
 - check that the SvelteKit app can be built and started: `cd packages/webapp; node --run build; node build/index.js;`
 - check that the api server can be started: `cd packages/api; node src/server.js;`
