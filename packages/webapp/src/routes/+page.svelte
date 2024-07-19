@@ -4,6 +4,6 @@
 	<a href="https://kit.svelte.dev" data-x> kit.svelte.dev </a>
 	to read the documentation
 
-	<img src="static-prefix/images/velhotes.jpg" alt="velhotes" />
+	<img src="/static-webapp/images/velhotes.jpg" alt="velhotes" />
 </p>
-<img src="static-prefix/images/velhotes.jpg" alt="velhotes" />
+

@@ -45,7 +45,7 @@ node build/index.js
 cd packages/api
 node src/server.js  # TODO: add this a "run" command in package.json
 ```
-6. import the project Caddyfile from the main Caddyfile (see details in section 1.3)
+6. configure DNS and import the project Caddyfile from the main Caddyfile (see details in section 1.3)
 
 
 # Template steps
@@ -125,14 +125,15 @@ sudo emacs /etc/caddy/Caddyfile
 
 the-domain.local {
 
-	# args[0] = WEBAPP_PORT = 3000
-	# args[1] = API_PORT = 3001
+	# args[0] = WEBAPP_PORT = 5000
+	# args[1] = API_PORT = 5001
 	# args[2] = PROJECT_ROOT_DIR = "/path/to/project"
-	
-	import /path/to/project/config/caddy/Caddyfile 3000 3001 "/path/to/project"
+
+	import /path/to/project/config/caddy/Caddyfile 5000 5001 "/path/to/project"
 	import /path/to/project/config/caddy/Caddyfile-log "the-domain.local"
-	# import /path/to/project/config/caddy/Caddyfile-dev
-	# import /path/to/project/config/caddy/Caddyfile-prod
+	import /path/to/project/config/caddy/Caddyfile-dev "/path/to/project"
+	import /path/to/project/config/caddy/Caddyfile-vite 5000
+	# import /path/to/project/config/caddy/Caddyfile-prod "/path/to/project"
 }
 
 ```

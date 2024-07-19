@@ -1,1 +1,51 @@
-# ...
+log {
+    output file /var/log/caddy/{args[0]} {
+        roll_size 10MiB
+        roll_keep 5
+        roll_keep_for 36500d  # 100 years
+    }
+
+    #format json {
+    #    time_format iso8601
+    #}
+
+    format filter {
+        wrap json {
+            time_format iso8601
+        }
+        fields {
+            request>remote_port delete
+            request>proto delete
+            request>method delete
+            request>host delete
+            request>tls delete
+            #request>uri delete
+
+            #request>headers delete
+            
+			#request>headers>Accept delete
+            #request>headers>Accept-Language delete
+            #request>headers>Accept-Encoding delete
+            #request>headers>Cache-Control delete
+            #request>headers>Dnt delete
+            #request>headers>If-Modified-Since delete
+            #request>headers>If-None-Match delete
+            #request>headers>Pragma delete
+            #request>headers>Referer delete
+            #request>headers>Sec-Ch-Ua delete
+            #request>headers>Sec-Ch-Ua-Mobile delete
+            #request>headers>Sec-Gpc delete
+            #request>headers>Sec-Fetch-Site delete
+            #request>headers>Sec-Fetch-Mode delete            
+            #request>headers>Sec-Fetch-User delete
+            #request>headers>Sec-Fetch-Dest delete
+            #request>headers>Te delete
+            #request>headers>Upgrade-Insecure-Requests delete
+            #request>headers>User-Agent delete
+
+            user_id delete
+            size delete
+            #resp_headers delete
+        }
+    }
+}
