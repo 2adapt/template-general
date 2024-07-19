@@ -1,0 +1,46 @@
+###############################################################################
+# specific routes for the vite/sveltekit dev server 
+#
+# this file should be imported in the main Caddyfile (/etc/caddy/Caddyfile)
+#
+# this specific routes could be handled in the more general "handle /* {}" block;
+# but here we can have better control (such as habing the logs disabled)
+###############################################################################
+
+
+handle /@fs/* {
+
+	skip_log
+	reverse_proxy http://localhost:{args[0]}
+}
+
+handle /@vite/* {
+
+	skip_log
+	reverse_proxy http://localhost:{args[0]}
+}
+
+handle /@id/* {
+
+	skip_log
+	reverse_proxy http://localhost:{args[0]}
+}
+
+handle /node_modules/* {
+
+	skip_log
+	reverse_proxy http://localhost:{args[0]}
+}
+
+handle /.svelte-kit/* {
+
+	skip_log
+	reverse_proxy http://localhost:{args[0]}
+}
+
+handle /src/* {
+
+	skip_log
+	reverse_proxy http://localhost:{args[0]}
+}
+

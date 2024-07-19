@@ -36,12 +36,14 @@ pnpm install
 ```
 4. verify that the SvelteKit app can be built and started:
 ```bash
-cd packages/webapp; node --run build; node build/index.js;
+cd packages/webapp
+node --run build
+node build/index.js
 ```
 5. verify that the api server can be started:
 ```bash
 cd packages/api
-node src/server.js
+node src/server.js  # TODO: add this a "run" command in package.json
 ```
 6. import the project Caddyfile from the main Caddyfile (see details in section 1.3)
 
@@ -126,7 +128,11 @@ the-domain.local {
 	# args[0] = WEBAPP_PORT = 3000
 	# args[1] = API_PORT = 3001
 	# args[2] = PROJECT_ROOT_DIR = "/path/to/project"
+	
 	import /path/to/project/config/caddy/Caddyfile 3000 3001 "/path/to/project"
+	import /path/to/project/config/caddy/Caddyfile-log "the-domain.local"
+	# import /path/to/project/config/caddy/Caddyfile-dev
+	# import /path/to/project/config/caddy/Caddyfile-prod
 }
 
 ```
@@ -225,7 +231,7 @@ This template has adjustments to (or adds) these files:
 
 - `vite.config.js`
 - `svelte.config.js`
-- `src/static` (all static assets should be placed in `src/static/static-prefix`)
+- `src/static` (all static assets should be placed instead in `src/static/static-webapp`)
 
 
 ### 3.1 - Install TailwindCSS in the SvelteKit app

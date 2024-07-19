@@ -14,6 +14,9 @@ pkgs.mkShell {
 		pkgs.corepack_22 # pnpm, etc
 		pkgs.bat
 		pkgs.curl
+		pkgs.zstd
+		pkgs.brotli
+		pkgs.gzip
 		# add other packages here
 	];
 	shellHook = ''
