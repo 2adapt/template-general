@@ -1,17 +1,18 @@
 {
+	"experimentalTernaries": true,
+	"printWidth": 120,
 	"useTabs": true,
 	"singleQuote": true,
-	"printWidth": 999,
 	"plugins": ["prettier-plugin-svelte"],
-	"singleAttributePerLine": false,
+	"singleAttributePerLine": true,
 	"htmlWhitespaceSensitivity": "strict",
+
 	"overrides": [
 		{
 			"files": "*.svelte",
 			"options": { "parser": "svelte" }
 		}
 	],
-
 	"svelteIndentScriptAndStyle": false,
 	"svelteStrictMode": true
 }
