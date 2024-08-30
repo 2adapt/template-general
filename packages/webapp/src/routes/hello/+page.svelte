@@ -1,12 +1,14 @@
 <script>
-// import { getNow } from '$lib/utils.js';
-//
-// let x = getNow();
+import Component from './Component.svelte';
+
 export let data;
 </script>
 
-<h1>Welcome to the hello page</h1>
-<p>now: {data.now}</p>
-<p>isoDate: {data.isoDate}</p>
+<div class="border border-orange-500">
+	<h1>the hello page</h1>
+	<p>now (from the page component) : {data.now}</p>
 
-<a href="/">go to the home page -></a>
+	<Component></Component>
+
+	<a href="/">navigate to the home page -></a>
+</div>

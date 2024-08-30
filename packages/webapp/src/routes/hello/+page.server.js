@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit';
-import { getNow } from '$lib/utils.js';
 import { getISODate } from '$lib/utils.server.js';
+import { getNow } from '$lib/utils.js';
 
 /** @type {import('./$types').LayoutServerLoad} */
 export async function load({ params, url, route }) {
@@ -13,17 +13,18 @@ export async function load({ params, url, route }) {
 	});
 
 	let now = getNow();
-	let isoDate = getISODate();
 
 	if (now % 2 === 0) {
 		error(418, {
-			message: 'this route does now work for even timestamps; try again;',
+			message: 'this route does not work for even timestamps; try again;',
 		});
 	}
 
+	let isoDate = getISODate();
+
 	let data = {
 		now,
-		isoDate,
+		// isoDate,
 		title: 'the hello page',
 	};
 
