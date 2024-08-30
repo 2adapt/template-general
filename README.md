@@ -30,7 +30,7 @@ nix-shell
 # modern nix cli
 nix develop  
 ```
-3. install the dependencies at the project root; if we are in production: make sure `pnpm-lock.yaml` was not modified after the installation (it shouldn't if we have `CI="false"` in `config/env.sh`)
+3. install the dependencies at the $PROJECT_BASE_DIR; if we are in production: make sure `pnpm-lock.yaml` was not modified after the installation (it shouldn't if we have `CI="false"` in `config/env.sh`)
 ```bash
 pnpm install
 ```
@@ -45,7 +45,7 @@ node build/index.js
 cd packages/api
 node src/server.js  # TODO: add this a "run" command in package.json
 ```
-6. configure DNS and import the project Caddyfile from the main Caddyfile (see details in section 1.3)
+6. configure DNS and import the project's Caddyfiles in the global Caddyfile (see details in section 1.3)
 
 
 # Template steps
@@ -55,7 +55,7 @@ node src/server.js  # TODO: add this a "run" command in package.json
 ### 1.1 - Basic configuration files
 
 ```bash
-# verify that the working directory is the workspace root directory
+# verify that the working directory is the workspace root directory/project base dir
 pwd
 
 touch .gitignore
@@ -75,7 +75,7 @@ touch config/nix/shell.nix
 touch config/env.sh.template
 ```
 
-It's convenient to have a shortcut for `config/nix/flake.nix` and `config/nix/shell.nix` in the project root:
+It's convenient to have a shortcut for `config/nix/flake.nix` and `config/nix/shell.nix` in the project base directory:
 
 ```bash
 # note that we actually want the symlink to have a relative path
@@ -96,7 +96,7 @@ nix-shell # or using the classic nix cli
 ```bash
 mkdir -p config/caddy
 
-touch config/caddy/Caddyfile
+touch config/caddy/Caddyfile-main
 ```
 
 For local development: update the `/etc/hosts` to have a local domain:
@@ -113,7 +113,7 @@ Append a line like this:
 
 NOTE: in some cases the "hot reload" in SvelteKit doesn't seem to work well with these local domains.
 
-The main caddy configuration should import the Caddyfile in the project:
+The global Caddyfile should import the project Caddyfile:
 
 ```bash
 sudo emacs /etc/caddy/Caddyfile
@@ -127,18 +127,18 @@ the-domain.local {
 
 	# args[0] = WEBAPP_PORT = 5000
 	# args[1] = API_PORT = 5001
-	# args[2] = PROJECT_ROOT_DIR = "/path/to/project"
+	# args[2] = PROJECT_BASE_DIR = "/path/to/project-base-dir"
 
-	import /path/to/project/config/caddy/Caddyfile 5000 5001 "/path/to/project"
-	import /path/to/project/config/caddy/Caddyfile-log "the-domain.local"
-	import /path/to/project/config/caddy/Caddyfile-dev "/path/to/project"
-	import /path/to/project/config/caddy/Caddyfile-vite 5000
-	# import /path/to/project/config/caddy/Caddyfile-prod "/path/to/project"
+	import /path/to/project-base-dir/config/caddy/Caddyfile-main 5000 5001 "/path/to/project-base-dir"
+	import /path/to/project-base-dir/config/caddy/Caddyfile-log "the-domain.local"
+	import /path/to/project-base-dir/config/caddy/Caddyfile-dev "/path/to/project-base-dir"
+	import /path/to/project-base-dir/config/caddy/Caddyfile-vite 5000
+	# import /path/to/project-base-dir/config/caddy/Caddyfile-prod "/path/to/project-base-dir"
 }
 
 ```
 
-Caddy must be reloaded after the main caddyfile (or one of the included Caddyfiles) are changed:
+Caddy must be reloaded after the global Caddyfile (or one of the included Caddyfiles) are modified:
 
 ```bash
 sudo systemctl reload caddy
@@ -172,14 +172,14 @@ cat ./package.json
 cat ../../pnpm-lock.yaml 
 ls -la ../../node_modules
 
-# return to the workspace root
+# return to the workspace root/project base dir
 cd ../..
 ```
 
 At this point:
 
-- `pnpm` should have created `pnpm-lock.yaml` and `node_modules` in the project/workspace root
-- this `node_modules` in the root has a `.pnpm` subdirectory (hidden directory), which is where the modules used in our workspace packages are actually stored
+- `pnpm` should have created `pnpm-lock.yaml` and `node_modules` in the project/workspace base dir
+- this `node_modules` in the base dir has a `.pnpm` subdirectory (hidden directory), which is where the modules used in our workspace packages are actually stored
 - a symlink is created from `packages/dummy-1/node_modules/underscore` to the respective directory in `node_modules/.pnpm`.
 
 IMPORTANT: before installing a dependency for a workspace package (`pnpm add <some-pkg>`) we should always change the working directory so that we are in the directory of that workspace package; that is, we should do this:
@@ -189,7 +189,7 @@ cd packages/dummy-1
 pnpm add <some-pkg>
 ```
 
-Otherwise we end up with a `package.json` in the workspace root, which we don't want.
+Otherwise we end up with a `package.json` in the workspace base dir, which we don't want.
 
 ### 2.2 - Using an existing local workspace package as a dependency
 
@@ -397,7 +397,7 @@ Type=simple
 
 # these 3 options below will be configured separately
 User=...
-WorkingDirectory=/path/to/project-root
+WorkingDirectory=/path/to/project-base-dir-base-dir
 ExecStart=/nix/var/nix/profiles/default/bin/nix-shell --command node packages/api/server.js
 
 
@@ -438,7 +438,7 @@ Reload and activate the `app-name:api` service:
 
 ```bash
 
-# make sure that $PWD is the root directory for the project
+# make sure that $PWD is $PROJECT_BASE_DIR
 
 echo $PWD
 
@@ -543,7 +543,7 @@ Add add something like this:
 [Service]
 
 User=...
-WorkingDirectory=/path/to/project-root
+WorkingDirectory=/path/to/project-base-dir-base-dir
 ExecStart=/nix/var/nix/profiles/default/bin/nix-shell --command node packages/api/server.js
 
 ```
@@ -618,7 +618,7 @@ start in dev mode:
 cd api
 pnpm run dev
 ```
-or start directly from the workspace root directory:
+or start directly from the workspace root directory / base directory:
 ```
 pnpm --filter="./api" run dev
 ```

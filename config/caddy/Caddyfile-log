@@ -1,5 +1,7 @@
+# args[0] = WEBAPP_DOMAIN
+
 log {
-    output file /var/log/caddy/{args[0]} {
+    output file /var/log/caddy/{args[0]}.log {
         roll_size 10MiB
         roll_keep 5
         roll_keep_for 36500d  # 100 years
