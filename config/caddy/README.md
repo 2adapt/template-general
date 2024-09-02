@@ -1,6 +1,11 @@
-These project specific Caddyfiles should be imported in the global Caddyfile `/etc/caddy/Caddyfile`. See examples below.
+These project specific Caddyfiles should be imported in the global Caddyfile. See examples below.
 
 ```shell
+sudo emacs /etc/caddy/Caddyfile
+```
+
+```shell
+
 the-domain.local {
 
     # args[0] = WEBAPP_PORT = "5000"
@@ -29,7 +34,6 @@ sudo systemctl reload caddy
 ```
 
 We can manually test the command executed by the service (can be helpful to debug using the console)
-
 ```shell
 sudo systemctl stop caddy
 
@@ -39,4 +43,16 @@ sudo /usr/bin/caddy run  \
 --config /etc/caddy/Caddyfile
 
 sudo systemctl restart caddy
+```
+
+
+For local development: add `the-domain.local` to `/etc/hosts`:
+
+```bash
+sudo emacs /etc/hosts
+```
+
+Append a line like this:
+```shell
+127.0.0.1 the-domain.local
 ```

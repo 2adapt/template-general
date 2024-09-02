@@ -1,6 +1,7 @@
 import { error } from '@sveltejs/kit';
 import { getISODate } from '$lib/utils.server.js';
 import { getNow } from '$lib/utils.js';
+import sql from '$lib/sql.server.js';
 
 /** @type {import('./$types').LayoutServerLoad} */
 export async function load({ params, url, route }) {
@@ -11,6 +12,22 @@ export async function load({ params, url, route }) {
 		url,
 		route,
 	});
+
+	let result = await sql`
+
+		SELECT current_database()
+
+	`;
+
+	let result2 = await sql`
+
+		SELECT * 
+		FROM pg_stat_activity
+		WHERE datname = ${result[0]['current_database']}
+	
+	`;
+
+	// console.log({ result2 })
 
 	let now = getNow();
 
@@ -25,6 +42,7 @@ export async function load({ params, url, route }) {
 	let data = {
 		now,
 		// isoDate,
+		pg_stat_activity: result2,
 		title: 'the hello page',
 	};
 

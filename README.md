@@ -23,11 +23,41 @@ A template to quickstart new projects at 2adapt.
 cp config/env.sh.template config/env.sh
 emacs config/env.sh
 ```
+
+1. create the database and related objects
+```bash
+export PGUSER_NEW="app_name"
+
+# 1 - create a user: normal user or super user:
+
+# 1a - normal user
+sudo --user postgres \
+createuser --createdb  --inherit --login --no-createrole --no-superuser --echo --pwprompt ${PGUSER_NEW}
+
+# 1b - superuser
+sudo --user postgres \
+createuser --superuser --pwprompt --echo ${PGUSER_NEW}
+
+# 2 - create the respective database
+sudo --user postgres \
+createdb --owner=${PGUSER_NEW} --echo ${PGUSER_NEW}
+
+# 3 - make sure we can connect; by default it will connect to a database 
+# with the same name as the username (so --dbname could be omitted)
+psql --username=${PGUSER_NEW} --dbname=${PGUSER_NEW} --host=localhost
+
+# 4 - create a table and insert some values
+psql --username=${PGUSER_NEW} --dbname=${PGUSER_NEW} --host=localhost --command="create table test(id int, name text)";
+psql --username=${PGUSER_NEW} --dbname=${PGUSER_NEW} --host=localhost --command="insert into test values (1,'aaa')";
+psql --username=${PGUSER_NEW} --dbname=${PGUSER_NEW} --host=localhost --command="insert into test values (2,'bbb')";
+```
+
+
 2. enter the nix dev shell: 
 ```bash
-# classic nix cli
+# 2a - classic nix cli
 nix-shell  
-# modern nix cli
+# 2b - modern nix cli
 nix develop  
 ```
 3. install the dependencies at the $PROJECT_BASE_DIR; if we are in production: make sure `pnpm-lock.yaml` was not modified after the installation (it shouldn't if we have `CI="false"` in `config/env.sh`)
@@ -37,15 +67,25 @@ pnpm install
 4. verify that the SvelteKit app can be built and started:
 ```bash
 cd packages/webapp
+
+# 4a - dev mode
+node --run dev
+
+# 4b - build mode
 node --run build
 node build/index.js
+
+# at this point we should have the webapp working on http://localhost:${WEBAPP_PORT}
 ```
-5. verify that the api server can be started:
+
+5. configure DNS and import the project's Caddyfiles in the global Caddyfile (see details in section 1.3 and config/caddy/README.md)
+
+6. verify that the api server can be started:
 ```bash
 cd packages/api
 node src/server.js  # TODO: add this a "run" command in package.json
 ```
-6. configure DNS and import the project's Caddyfiles in the global Caddyfile (see details in section 1.3)
+
 
 
 # Template steps
