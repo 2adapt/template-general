@@ -1,32 +1,29 @@
 <script>
+import { goto } from '$app/navigation';
+
 export let data;
 
-let now = data.now;
 let counter = 0;
-function incrementCounter() {
+async function incrementCounter() {
 	counter++;
+
+	if (counter >= 3) {
+		await goto('hello');
+	}
 }
 </script>
 
-<h1>Welcome to SvelteKit home page</h1>
-<p class="bg-blue-300">
-	Visit
-	<a
-		href="https://kit.svelte.dev"
-		data-x
-	>
-		kit.svelte.dev
-	</a>
-	to read the documentation
-</p>
+<div class="border border-indigo-500">
+	<h1 class="bg-blue-200">Welcome to SvelteKit home page</h1>
 
-<img
-	src="/static-webapp/images/velhotes.jpg"
-	xalt="velhotes"
-	on:click="{incrementCounter}"
-/>
+	<img
+		src="/static-webapp/images/velhotes.jpg"
+		title="velhotes - click 3 times to navigate with goto()"
+		on:click="{incrementCounter}"
+	/>
 
-<p>now: {now}</p>
-<p>xcounter: {counter}</p>
+	<p>now (from the page component) : {data.now}</p>
+	<p>counter: {counter}</p>
 
-<a href="/hello">go to hello page -></a>
+	<a href="/hello">navigate to the hello page -></a>
+</div>
