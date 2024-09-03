@@ -1,5 +1,7 @@
 These project specific Caddyfiles should be imported in the global Caddyfile. See examples below.
 
+`Caddyfile-main` is the only necessary configuration file. The others can be used to  enhance the website configuration.   
+
 ```shell
 sudo emacs /etc/caddy/Caddyfile
 ```
@@ -33,10 +35,12 @@ When any Caddyfile is modified, the caddy service must be reloaded:
 sudo systemctl reload caddy
 ```
 
-We can manually test the command executed by the service (can be helpful to debug using the console)
+We can manually start caddy. It can be useful to find some problems using the console output:
+
 ```shell
 sudo systemctl stop caddy
 
+# immediatelly start caddy manually, to avoid having the other websites down
 sudo /usr/bin/caddy run  \
 --watch  \
 --environ  \

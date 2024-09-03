@@ -38,6 +38,9 @@ export async function handle({ event, resolve }) {
 	return response;
 }
 
+// "If an unexpected error is thrown during loading or rendering, this function will be called"
+// https://kit.svelte.dev/docs/hooks#shared-hooks-handleerror
+
 export async function handleError({ error, status, message, event }) {
 	console.log('hooks.server.js:handleError', {
 		error,
