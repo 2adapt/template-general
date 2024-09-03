@@ -438,7 +438,7 @@ Type=simple
 # these 3 options below will be configured separately
 User=...
 WorkingDirectory=/path/to/project-base-dir-base-dir
-ExecStart=/nix/var/nix/profiles/default/bin/nix-shell --command node packages/api/server.js
+ExecStart=/nix/var/nix/profiles/default/bin/nix-shell --run node packages/api/server.js
 
 
 #ExecStop=...
@@ -584,7 +584,7 @@ Add add something like this:
 
 User=...
 WorkingDirectory=/path/to/project-base-dir-base-dir
-ExecStart=/nix/var/nix/profiles/default/bin/nix-shell --command node packages/api/server.js
+ExecStart=/nix/var/nix/profiles/default/bin/nix-shell --run node packages/api/server.js
 
 ```
 
