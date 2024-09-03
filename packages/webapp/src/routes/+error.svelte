@@ -1,5 +1,6 @@
 <script>
 import { page } from '$app/stores';
+import { dev } from '$app/environment';
 
 // https://kit.svelte.dev/docs/errors
 </script>
@@ -9,4 +10,7 @@ import { page } from '$app/stores';
 </svelte:head>
 
 <h1>custom error page</h1>
-<p>{$page.status}: {$page.error.message}</p>
+<p>{$page.error.status || $page.status}: {$page.error.message}</p>
+{#if dev && $page.error.messageOriginal}
+	<p>{$page.error.messageOriginal}</p>
+{/if}

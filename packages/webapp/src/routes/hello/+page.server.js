@@ -32,9 +32,14 @@ export async function load({ params, url, route }) {
 	let now = getNow();
 
 	if (now % 2 === 0) {
+		// expected errors should be created with the error helper
+		// https://kit.svelte.dev/docs/errors
+
 		error(418, {
 			message: 'this route does not work for even timestamps; try again;',
 		});
+
+		// unexpected errors are not exposed to users; will go through the handleError hook
 	}
 
 	let isoDate = getISODate();

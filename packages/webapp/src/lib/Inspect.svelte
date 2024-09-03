@@ -13,7 +13,7 @@ $: {
 }
 </script>
 
-<div class="border border-red-400 p-2 rounded-xl">
+<div class="border border-red-400 p-2 rounded-xl w-full">
 	<div>{title}</div>
 	<textarea class="w-full h-64 text-xs leading-4 font-mono">{valueStringified}</textarea>
 </div>
