@@ -112,7 +112,7 @@ node src/server.js  # TODO: add this a "run" command in package.json
 
 7. Create the systemd service 
 
-See details in the "Systemd units" section.
+See details in the "Systemd units" section ("Reload and activate the service")
 
 
 # Template steps
@@ -453,7 +453,7 @@ Reload and activate the `app-name-webapp` service:
 if [ $PROJECT_BASE_DIR = $PWD ]; then echo "ok!"; fi
 
 
-# verify again
+# verify that the files exist and that the contents are correct
 ls -l "${PWD}/config/systemd-units/app-name-webapp/app-name-webapp.service"
 cat "${PWD}/config/systemd-units/app-name-webapp/app-name-webapp.service"
 
@@ -461,7 +461,7 @@ sudo ln -s \
 "${PWD}/config/systemd-units/app-name-webapp/app-name-webapp.service" \
 "/etc/systemd/system/app-name-webapp.service"
 
-# verify again
+# verify that the symlinks are correct
 ls -l "/etc/systemd/system/app-name-webapp.service"
 cat "/etc/systemd/system/app-name-webapp.service"
 

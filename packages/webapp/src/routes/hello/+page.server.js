@@ -1,7 +1,7 @@
 import { error } from '@sveltejs/kit';
-import { getISODate } from '$lib/utils.server.js';
+import { getISODate } from '$lib/server/utils.js';
 import { getNow } from '$lib/utils.js';
-import sql from '$lib/sql.server.js';
+import sql from '$lib/server/sql.js';
 
 /** @type {import('./$types').LayoutServerLoad} */
 export async function load({ params, url, route }) {

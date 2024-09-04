@@ -1,12 +1,13 @@
 import postgres from 'postgres';
 
-let { PGPORT, PGDATABASE, PGUSER, PGPASSWORD, PGAPPNAME } = process.env;
+let { PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD, PGAPPNAME } = process.env;
 
-console.log({ PGPORT, PGDATABASE, PGUSER, PGPASSWORD, PGAPPNAME });
+console.log({ PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD, PGAPPNAME });
 
 // https://github.com/porsager/postgres?tab=readme-ov-file#connection-details
 
 const sql = postgres({
+	host: PGHOST,
 	port: PGPORT,
 	database: PGDATABASE,
 	username: PGUSER,
