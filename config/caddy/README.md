@@ -15,7 +15,7 @@ the-domain.local {
     # args[2] = PROJECT_BASE_DIR = "/path/to/project-base-dir"
     import /path/to/project-base-dir/config/caddy/Caddyfile-main "5000" "5001" "/path/to/project-base-dir"
     
-    # args[0] = WEBAPP_DOMAIN = "the-domain.local"
+    # args[0] = PROJECT_HOSTNAME = "the-domain.local"
     # import /path/to/project-base-dir/config/caddy/Caddyfile-log "the-domain.local"
     
     # args[0] = PROJECT_BASE_DIR = "/path/to/project-base-dir"
@@ -25,7 +25,7 @@ the-domain.local {
     # import /path/to/project-base-dir/config/caddy/Caddyfile-vite "5000"
     
     # args[0] = PROJECT_BASE_DIR = "/path/to/project-base-dir"
-    # import /path/to/project-base-dir/config/caddy/Caddyfile-prod "/path/to/project-base-dir"
+    # import /path/to/project-base-dir/config/caddy/Caddyfile-static-webapp "/path/to/project-base-dir"
 }
 ```
 

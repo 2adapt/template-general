@@ -14,64 +14,79 @@ A template to quickstart new projects at 2adapt.
 	- PostgreSQL: https://www.postgresql.org/download/linux/ubuntu/
 		- `ls -l /etc/postgresql; sudo systemctl status postgresql`
 	- pnpm (?): https://pnpm.io/installation#on-posix-systems
-		- no longer! pnpm is now installed via nix, using the `corepack` nix package
+		- DEPRECATED! pnpm is now available via nix, using the `corepack` nix package
 
 # Initial steps:
 
-1. set the env variables: 
+1. set the necessary env variables: 
 ```bash
 cp config/env.sh.template config/env.sh
 emacs config/env.sh
 ```
 
-1. create the database and related objects
+2. create the database for the project:
+
 ```bash
-export PGUSER_NEW="app_name"
+export PGUSER_FOR_PROJECT="app_name";
 
-# 1 - create a user: normal user or super user:
+# 2.1 - create a database user: normal user or super user:
 
-# 1a - normal user
+# 2.1a - a normal user...
 sudo --user postgres \
-createuser --createdb  --inherit --login --no-createrole --no-superuser --echo --pwprompt ${PGUSER_NEW}
+createuser --createdb  --inherit --login --no-createrole --no-superuser --pwprompt --echo ${PGUSER_FOR_PROJECT}
 
-# 1b - superuser
+# 2.1b - or a superuser
 sudo --user postgres \
-createuser --superuser --pwprompt --echo ${PGUSER_NEW}
+createuser --superuser --pwprompt --echo ${PGUSER_FOR_PROJECT}
 
-# 2 - create the respective database
+# 2.2 - create the respective database
 sudo --user postgres \
-createdb --owner=${PGUSER_NEW} --echo ${PGUSER_NEW}
+createdb --owner=${PGUSER_FOR_PROJECT} --echo ${PGUSER_FOR_PROJECT}
 
-# 3 - make sure we can connect; by default it will connect to a database 
-# with the same name as the username (so --dbname could be omitted)
-psql --username=${PGUSER_NEW} --dbname=${PGUSER_NEW} --host=localhost
+# 2.3 - make sure we can connect; by default it will connect to a database 
+# with the same name as the username (so --dbname could be omitted below);
+psql --host=localhost --dbname=${PGUSER_FOR_PROJECT} --username=${PGUSER_FOR_PROJECT} 
 
-# 4 - create a table and insert some values
-psql --username=${PGUSER_NEW} --dbname=${PGUSER_NEW} --host=localhost --command="create table test(id int, name text)";
-psql --username=${PGUSER_NEW} --dbname=${PGUSER_NEW} --host=localhost --command="insert into test values (1,'aaa')";
-psql --username=${PGUSER_NEW} --dbname=${PGUSER_NEW} --host=localhost --command="insert into test values (2,'bbb')";
+# alternative: if the following PG* env variables are set, psql will use them: 
+# PGHOST, PGDATABASE, PGUSER, PGPASSWORD 
+# set those variables in config/env.sh, enter in the nix shell and verify again:
+echo $PGHOST,$PGDATABASE,$PGUSER,$PGPASSWORD
+psql
+
+# 2.4 - create a table and insert some values
+psql --command="create table test(id int, name text)";
+psql --command="insert into test values (1, 'aaa')";
+psql --command="insert into test values (2, 'bbb')";
 ```
 
 
-2. enter the nix dev shell: 
+3. enter the nix dev shell and install dependencies from npm:
+
 ```bash
-# 2a - classic nix cli
+# 3a - classic nix cli...
 nix-shell  
-# 2b - modern nix cli
+# 3b - or modern nix cli
 nix develop  
-```
-3. install the dependencies at the $PROJECT_BASE_DIR; if we are in production: make sure `pnpm-lock.yaml` was not modified after the installation (it shouldn't if we have `CI="false"` in `config/env.sh`)
-```bash
+
+# install the dependencies with pnpm; make sure that $PWD is at the $PROJECT_BASE_DIR;  
+if [ $PROJECT_BASE_DIR = $PWD ]; then echo "ok!"; fi
+
+
+# if we are in production: after pnpm has finished, make sure that `pnpm-lock.yaml` 
+# was not modified (it shouldn't if we have `CI="false"` in `config/env.sh`)
+
 pnpm install
+
 ```
-4. verify that the SvelteKit app can be built and started:
+
+4. verify that the SvelteKit webapp can be built and started:
 ```bash
 cd packages/webapp
 
-# 4a - dev mode
+# 4a - check dev mode
 node --run dev
 
-# 4b - build mode
+# 4b - prod mode
 node --run build
 node build/index.js
 
@@ -80,12 +95,24 @@ node build/index.js
 
 5. configure DNS and import the project's Caddyfiles in the global Caddyfile (see details in section 1.3 and config/caddy/README.md)
 
+```bash
+sudo emacs /etc/caddy/Caddyfile
+# edit the global caddyfile
+sudo systemctl restart caddy
+
+# at this point we should have the webapp working on https://${PROJECT_HOSTNAME}
+```
+
+
 6. verify that the api server can be started:
 ```bash
 cd packages/api
 node src/server.js  # TODO: add this a "run" command in package.json
 ```
 
+7. Create the systemd service 
+
+See details in the "Systemd units" section.
 
 
 # Template steps
@@ -423,8 +450,8 @@ Reload and activate the `app-name:api` service:
 ```bash
 
 # make sure that $PWD is $PROJECT_BASE_DIR
+if [ $PROJECT_BASE_DIR = $PWD ]; then echo "ok!"; fi
 
-echo $PWD
 
 # verify again
 ls -l "${PWD}/config/systemd-units/app-name:api/app-name:api.service"
@@ -544,27 +571,6 @@ We should now have a new directory in `/etc/systemd/system/app-name:api.service.
 
 
 
-## 6 - Initial deployment (manual)
-
-```bash
-git clone user/repo
-cd repo
-cp config/env.sh.template config/env.sh
-emacs config/env.sh
-
-# enter the shell and install depedencies
-nix-shell
-pnpm install
-
-# check assumptions about the server: nix, caddy, postgresql
-
-# manually start all the services (copy-paste from ExecStart)
-
-# import config/caddy/Caddyfile-prod in /etc/caddy/Caddyfile
-
-# setup the database
-
-```
 
 
 --------------------------------------------------------------------------
