@@ -25,5 +25,5 @@ async function incrementCounter() {
 	<p>now (from the page component) : {data.now}</p>
 	<p>counter: {counter}</p>
 
-	<a href="/hello">navigate to the hello page -></a>
+	<a href="/hello?delay_in_seconds=0">navigate to the hello page -></a>
 </div>

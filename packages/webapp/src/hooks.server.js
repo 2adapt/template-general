@@ -1,4 +1,4 @@
-import { dev } from '$app/environment';
+// import { dev } from '$app/environment';
 
 export async function handle({ event, resolve }) {
 	// event is similar to the object received in the load function in +page.server.js
@@ -52,6 +52,6 @@ export async function handleError({ error, status, message, event }) {
 	return {
 		message: message,
 		status: status,
-		messageOriginal: dev ? error.message : null,
+		messageOriginal: error.toString(),
 	};
 }

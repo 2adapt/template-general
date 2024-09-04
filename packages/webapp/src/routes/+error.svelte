@@ -11,6 +11,6 @@ import { dev } from '$app/environment';
 
 <h1>custom error page</h1>
 <p>{$page.error.status || $page.status}: {$page.error.message}</p>
-{#if dev && $page.error.messageOriginal}
+{#if (dev || true) && $page.error.messageOriginal}
 	<p>{$page.error.messageOriginal}</p>
 {/if}
