@@ -527,8 +527,8 @@ Copy-paste:
 #!/bin/sh
 
 sudo systemctl status "app-name-webapp"
-sudo systemctl status "app-name:service-b"
-sudo systemctl status "app-name:service-c"
+sudo systemctl status "app-name-api"
+sudo systemctl status "app-name-other"
 ```
 
 We can now see the status of all services:
