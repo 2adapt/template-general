@@ -430,13 +430,13 @@ pnpm dlx fastify-cli generate-plugin the-plugin
 
 Reference: ...
 
-### Base configuration for a `app-name:api` service
+### Base configuration for a `app-name-webapp` service
 
 Create the configuration file:
 
 ```bash
-mkdir -p config/systemd-units/app-name:api
-emacs config/systemd-units/app-name:api/app-name:api.service
+mkdir -p config/systemd-units/app-name-webapp
+emacs config/systemd-units/app-name-webapp/app-name-webapp.service
 ```
 
 Copy-paste:
@@ -445,7 +445,7 @@ Copy-paste:
 # ...
 ```
 
-Reload and activate the `app-name:api` service:
+Reload and activate the `app-name-webapp` service:
 
 ```bash
 
@@ -454,44 +454,44 @@ if [ $PROJECT_BASE_DIR = $PWD ]; then echo "ok!"; fi
 
 
 # verify again
-ls -l "${PWD}/config/systemd-units/app-name:api/app-name:api.service"
-cat "${PWD}/config/systemd-units/app-name:api/app-name:api.service"
+ls -l "${PWD}/config/systemd-units/app-name-webapp/app-name-webapp.service"
+cat "${PWD}/config/systemd-units/app-name-webapp/app-name-webapp.service"
 
 sudo ln -s \
-"${PWD}/config/systemd-units/app-name:api/app-name:api.service" \
-"/etc/systemd/system/app-name:api.service"
+"${PWD}/config/systemd-units/app-name-webapp/app-name-webapp.service" \
+"/etc/systemd/system/app-name-webapp.service"
 
 # verify again
-ls -l "/etc/systemd/system/app-name:api.service"
-cat "/etc/systemd/system/app-name:api.service"
+ls -l "/etc/systemd/system/app-name-webapp.service"
+cat "/etc/systemd/system/app-name-webapp.service"
 
 sudo systemctl daemon-reload
-sudo systemctl enable "app-name:api.service"
-sudo systemctl start "app-name:api.service"
+sudo systemctl enable "app-name-webapp.service"
+sudo systemctl start "app-name-webapp.service"
 ```
 
-Systemd will create a new link in `/etc/systemd/system/app-name:api.service` pointing to out `.service` file.
+Systemd will create a new link in `/etc/systemd/system/app-name-webapp.service` pointing to out `.service` file.
 
-Other commands to interact with the `app-name:api` service:
+Other commands to interact with the `app-name-webapp` service:
 
 ```bash
-sudo systemctl status "app-name:api.service"
-journalctl --unit "app-name:api.service" --lines 500
-sudo systemctl restart "app-name:api.service"
-sudo systemctl start "app-name:api.service"
-sudo systemctl stop "app-name:api.service"
-sudo systemctl disable "app-name:api.service"
+sudo systemctl status "app-name-webapp.service"
+journalctl --unit "app-name-webapp.service" --lines 500
+sudo systemctl restart "app-name-webapp.service"
+sudo systemctl start "app-name-webapp.service"
+sudo systemctl stop "app-name-webapp.service"
+sudo systemctl disable "app-name-webapp.service"
 ```
 
 
-### Wrapper scripts for the `app-name:api` service
+### Wrapper scripts for the `app-name-webapp` service
 
 Create a wrapper for `status` subcommand using a simple shell script:
 
 ```bash
-touch config/systemd-units/app-name:api/status.sh
-chmod 755 config/systemd-units/app-name:api/status.sh
-emacs config/systemd-units/app-name:api/status.sh
+touch config/systemd-units/app-name-webapp/status.sh
+chmod 755 config/systemd-units/app-name-webapp/status.sh
+emacs config/systemd-units/app-name-webapp/status.sh
 ```
 
 Copy-paste:
@@ -499,13 +499,13 @@ Copy-paste:
 ```
 #!/bin/sh
 
-sudo systemctl status "app-name:api"
+sudo systemctl status "app-name-webapp"
 ```
 
-We can now see the status of the `app-name:api` service using the shell script in the project:
+We can now see the status of the `app-name-webapp` service using the shell script in the project:
 
 ```bash
-sudo config/systemd-units/app-name:api/status.sh
+sudo config/systemd-units/app-name-webapp/status.sh
 ```
 
 If this makes sense we can repeat for other systemd subcommands: `restart` and `stop`.
@@ -526,7 +526,7 @@ Copy-paste:
 ```
 #!/bin/sh
 
-sudo systemctl status "app-name:api"
+sudo systemctl status "app-name-webapp"
 sudo systemctl status "app-name:service-b"
 sudo systemctl status "app-name:service-c"
 ```
@@ -538,13 +538,13 @@ sudo config/systemd-units/status-all.sh
 ```
 
 
-### Specific configuration for `app-name:api` (if necessary)
+### Specific configuration for `app-name-webapp` (if necessary)
 
 Add the missing options in the `[Service]` section using the `systemctl edit` command. More details here: https://www.linode.com/docs/guides/introduction-to-systemctl/#editing-a-unit-file
 
 ```bash
 export SYSTEMD_EDITOR=emacs
-sudo systemctl edit "app-name:api"
+sudo systemctl edit "app-name-webapp"
 ```
 
 Add add something like this:
@@ -563,11 +563,11 @@ Any changes to the configuration files requires a reload and restart of the serv
 
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl restart "app-name:api.service"
-sudo systemctl status "app-name:api.service"
+sudo systemctl restart "app-name-webapp.service"
+sudo systemctl status "app-name-webapp.service"
 ```
 
-We should now have a new directory in `/etc/systemd/system/app-name:api.service.d`.
+We should now have a new directory in `/etc/systemd/system/app-name-webapp.service.d`.
 
 
 

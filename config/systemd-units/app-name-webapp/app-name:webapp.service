@@ -3,7 +3,7 @@
 # https://www.freedesktop.org/software/systemd/man/systemd.unit.html
 
 # for clarity, Description should be the same as the symlink created in /etc/systemd/system
-Description="app-name:webapp"
+Description="app-name-webapp"
 After=network.target
 After=postgresql.service
 Wants=postgresql.service
