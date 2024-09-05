@@ -1,4 +1,4 @@
-# args[0] = WEBAPP_DOMAIN
+# args[0] = PROJECT_HOSTNAME
 
 log {
     output file /var/log/caddy/{args[0]}.log {
