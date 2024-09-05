@@ -1,15 +1,17 @@
 import { error } from '@sveltejs/kit';
-import { getISODate } from '$lib/server/utils.js';
+import { getISODate } from '$lib/utils.server.js';
 import { getNow } from '$lib/utils.js';
-import { sql } from '$lib/server/postgres.js';
-import { db } from '$lib/server/pg.js';
+import { sql } from '$lib/postgres.server.js';
+import { db } from '$lib/pg.server.js';
 let { PGDATABASE } = process.env;
 
 /** @type {import('./$types').LayoutServerLoad} */
 export async function load({ params, url, route, locals }) {
 	// ...
 
-	console.log('+page.server.js:load', {
+	let logId = '[/hello/+page.server.js:load]';
+
+	console.log(logId, {
 		params,
 		url,
 		route,
@@ -34,9 +36,9 @@ export async function load({ params, url, route, locals }) {
 		delay_in_seconds = 0;
 	}
 
-	console.time('query1-' + now);
+	console.time(logId + '-query1-' + now);
 	let result1 = await sql`SELECT now()`;
-	console.timeEnd('query1-' + now);
+	console.timeEnd(logId + '-query1-' + now);
 
 	console.time('query2-' + now);
 	let result2 = await sql`
@@ -46,9 +48,9 @@ export async function load({ params, url, route, locals }) {
 		WHERE datname = ${PGDATABASE}
 
 	`;
-	console.timeEnd('query2-' + now);
+	console.time(logId + '-query2-' + now);
 
-	console.time('query3-' + now);
+	console.timeEnd(logId + '-query2-' + now);
 	let result3 = await db.query(
 		`
 
@@ -59,7 +61,7 @@ export async function load({ params, url, route, locals }) {
 	`,
 		[delay_in_seconds, PGDATABASE],
 	);
-	console.timeEnd('query3-' + now);
+	console.time(logId + '-query3-' + now);
 
 	// unused variable
 
@@ -68,8 +70,8 @@ export async function load({ params, url, route, locals }) {
 	let data = {
 		now,
 		// isoDate,
-		'pg_stat_activity (postgres)': result2,
-		'pg_stat_activity (pg)': result3.rows,
+		'pg_stat_activity (from postgres)': result2,
+		'pg_stat_activity (from pg)': result3.rows,
 		title: 'the hello page',
 		// result3,
 	};

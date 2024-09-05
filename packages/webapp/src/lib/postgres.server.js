@@ -1,3 +1,4 @@
+// https://github.com/porsager/postgres
 import postgres from 'postgres';
 
 let { PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD, PGAPPNAME } = process.env;
@@ -20,12 +21,12 @@ const sql = postgres({
 // reference: https://kit.svelte.dev/docs/adapter-node#graceful-shutdown
 
 process.on('sveltekit:shutdown', async function (reason) {
-	console.log('sveltekit:shutdown $lib/server/postgres.js', { reason });
+	console.log('[$lib/postgres.server.js:shutdown]', { reason });
 
 	try {
 		await sql.end();
 	} catch (err) {
-		console.error(err.toString());
+		console.error('[$lib/postgres.server.js:shutdown]', err.toString());
 	}
 });
 

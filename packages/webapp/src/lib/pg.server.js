@@ -1,3 +1,4 @@
+// https://github.com/brianc/node-postgres
 import pg from 'pg';
 
 let { PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD, PGAPPNAME } = process.env;
@@ -15,16 +16,20 @@ const pool = new pg.Pool({
 
 pool.on('error', (err) => {
 	// avoid killing the node server because of unhandled 'error' event
-	console.error(err.toString());
+	console.error('[$lib/pg.server.js]', err.toString());
 });
 
+// manually add a listener to the sveltekit shutdown event, to close existing postgres connections;
+// if we don't do this the server might not respond Ctrl+c, SIGINT, etc;
+// reference: https://kit.svelte.dev/docs/adapter-node#graceful-shutdown
+
 process.on('sveltekit:shutdown', async function (reason) {
-	console.log('sveltekit:shutdown $lib/server/pg.js', { reason });
+	console.log('[$lib/pg.server.js:shutdown]', { reason });
 
 	try {
 		await pool.end();
 	} catch (err) {
-		console.error(err.toString());
+		console.error('[$lib/pg.server.js:shutdown]', err.toString());
 	}
 });
 

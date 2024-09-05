@@ -22,7 +22,7 @@ export async function load({
 
 	// input for the load functions: https://kit.svelte.dev/docs/load#universal-vs-server-input
 
-	console.log({
+	console.log('[/+page.server.js]', {
 		params,
 		url,
 		route,

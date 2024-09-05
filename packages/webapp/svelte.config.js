@@ -68,7 +68,7 @@ const config = {
 		}
 
 		// handle all other warnings normally
-		// console.log({ warning });
+		// console.log('[svelte.config.js]', { warning });
 
 		defaultHandler(warning);
 	},

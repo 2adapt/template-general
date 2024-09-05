@@ -18,7 +18,7 @@ export async function handle({ event, resolve }) {
 		// isSubRequest,
 	} = event;
 
-	console.log('hooks.server.js:handle', {
+	console.log('[hooks.server.js:handle]', {
 		params,
 		url,
 		route,
@@ -42,7 +42,7 @@ export async function handle({ event, resolve }) {
 // https://kit.svelte.dev/docs/hooks#shared-hooks-handleerror
 
 export async function handleError({ error, status, message, event }) {
-	console.log('hooks.server.js:handleError', {
+	console.log('[hooks.server.js:handleError]', {
 		error,
 		// event,
 		status,

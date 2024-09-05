@@ -7,11 +7,11 @@ import { getNow } from '$lib/utils.js';
 let now = getNow();
 
 onMount(function () {
-	console.log('onMount');
+	console.log('[/hello/Component.svelte:onMount]');
 });
 
 onDestroy(function () {
-	console.log('onDestroy');
+	console.log('[/hello/Component.svelte:onDestroy]');
 });
 </script>
 
