@@ -107,7 +107,7 @@ sudo systemctl restart caddy
 6. verify that the api server can be started:
 ```bash
 cd packages/api
-node src/server.js  # TODO: add this a "run" command in package.json
+node src/server.js  # TODO: add this as a "run" command in package.json
 ```
 
 7. Create the systemd service 
