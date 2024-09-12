@@ -12,20 +12,20 @@ the-domain.local {
 
     # args[0] = WEBAPP_PORT = "5000"
     # args[1] = API_PORT = "5001"
-    # args[2] = PROJECT_BASE_DIR = "/path/to/project-base-dir"
-    import /path/to/project-base-dir/config/caddy/Caddyfile-main "5000" "5001" "/path/to/project-base-dir"
+    # args[2] = PROJECT_HOME_DIR = "/path/to/project-home-dir"
+    import /path/to/project-home-dir/config/caddy/Caddyfile-main "5000" "5001" "/path/to/project-home-dir"
     
     # args[0] = PROJECT_HOSTNAME = "the-domain.local"
-    # import /path/to/project-base-dir/config/caddy/Caddyfile-log "the-domain.local"
+    # import /path/to/project-home-dir/config/caddy/Caddyfile-log "the-domain.local"
     
-    # args[0] = PROJECT_BASE_DIR = "/path/to/project-base-dir"
-    # import /path/to/project-base-dir/config/caddy/Caddyfile-dev "/path/to/project-base-dir"
+    # args[0] = PROJECT_HOME_DIR = "/path/to/project-home-dir"
+    # import /path/to/project-home-dir/config/caddy/Caddyfile-dev "/path/to/project-home-dir"
     
     # args[0] = WEBAPP_PORT = "5000"
-    # import /path/to/project-base-dir/config/caddy/Caddyfile-vite "5000"
+    # import /path/to/project-home-dir/config/caddy/Caddyfile-vite "5000"
     
-    # args[0] = PROJECT_BASE_DIR = "/path/to/project-base-dir"
-    # import /path/to/project-base-dir/config/caddy/Caddyfile-static-webapp "/path/to/project-base-dir"
+    # args[0] = PROJECT_HOME_DIR = "/path/to/project-home-dir"
+    # import /path/to/project-home-dir/config/caddy/Caddyfile-static-webapp "/path/to/project-home-dir"
 }
 ```
 

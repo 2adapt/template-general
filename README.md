@@ -68,8 +68,8 @@ nix-shell
 # 3b - or modern nix cli
 nix develop  
 
-# install the dependencies with pnpm; make sure that $PWD is at the $PROJECT_BASE_DIR;  
-if [ $PROJECT_BASE_DIR = $PWD ]; then echo "ok!"; fi
+# install the dependencies with pnpm; make sure that $PWD is at the $PROJECT_HOME_DIR;  
+if [ $PROJECT_HOME_DIR = $PWD ]; then echo "ok!"; fi
 
 
 # if we are in production: after pnpm has finished, make sure that `pnpm-lock.yaml` 
@@ -194,13 +194,13 @@ the-domain.local {
 
 	# args[0] = WEBAPP_PORT = 5000
 	# args[1] = API_PORT = 5001
-	# args[2] = PROJECT_BASE_DIR = "/path/to/project-base-dir"
+	# args[2] = PROJECT_HOME_DIR = "/path/to/project-home-dir"
 
-	import /path/to/project-base-dir/config/caddy/Caddyfile-main 5000 5001 "/path/to/project-base-dir"
-	import /path/to/project-base-dir/config/caddy/Caddyfile-log "the-domain.local"
-	import /path/to/project-base-dir/config/caddy/Caddyfile-dev "/path/to/project-base-dir"
-	import /path/to/project-base-dir/config/caddy/Caddyfile-vite 5000
-	# import /path/to/project-base-dir/config/caddy/Caddyfile-prod "/path/to/project-base-dir"
+	import /path/to/project-home-dir/config/caddy/Caddyfile-main 5000 5001 "/path/to/project-home-dir"
+	import /path/to/project-home-dir/config/caddy/Caddyfile-log "the-domain.local"
+	import /path/to/project-home-dir/config/caddy/Caddyfile-dev "/path/to/project-home-dir"
+	import /path/to/project-home-dir/config/caddy/Caddyfile-vite 5000
+	# import /path/to/project-home-dir/config/caddy/Caddyfile-prod "/path/to/project-home-dir"
 }
 
 ```
@@ -449,8 +449,8 @@ Reload and activate the `app-name-webapp` service:
 
 ```bash
 
-# make sure that $PWD is $PROJECT_BASE_DIR
-if [ $PROJECT_BASE_DIR = $PWD ]; then echo "ok!"; fi
+# make sure that $PWD is $PROJECT_HOME_DIR
+if [ $PROJECT_HOME_DIR = $PWD ]; then echo "ok!"; fi
 
 
 # verify that the files exist and that the contents are correct
@@ -554,7 +554,7 @@ Add add something like this:
 [Service]
 
 User=...
-WorkingDirectory=/path/to/project-base-dir-base-dir
+WorkingDirectory=/path/to/project-home-dir-base-dir
 ExecStart=/nix/var/nix/profiles/default/bin/nix-shell --run node packages/api/server.js
 
 ```

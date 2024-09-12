@@ -1,6 +1,6 @@
 # args[0] = WEBAPP_PORT
 # args[1] = API_PORT
-# args[2] = PROJECT_BASE_DIR
+# args[2] = PROJECT_HOME_DIR
 
 
 ###############################################################################

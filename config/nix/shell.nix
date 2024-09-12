@@ -29,8 +29,8 @@ pkgs.mkShell {
 		
 		set +a
 
-		# show basic informations about the database
-		psql -c "select current_database(), current_user, split_part(version(), ' ', 2) as version, inet_server_addr() as server_addr, inet_server_port() as server_port"
+		# show basic informations about the database; psql will use the PG* env variables to make the connection;
+		psql --command="select current_database(), current_user, split_part(version(), ' ', 2) as version, inet_server_addr() as server_addr, inet_server_port() as server_port"
 
 		alias npm="echo npm is not available in this shell. Use pnpm instead."
 		alias cat=bat

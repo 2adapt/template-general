@@ -1,4 +1,4 @@
-# args[0] = PROJECT_BASE_DIR
+# args[0] = PROJECT_HOME_DIR
 
 ###############################################################################
 # specific routes for prod
@@ -25,7 +25,7 @@ handle /static-webapp/* {
 	uri strip_prefix /static-webapp
 	file_server {
 
-		# {args[0]} is the path to PROJECT_BASE_DIR; uri strip_prefix is used,
+		# {args[0]} is the path to PROJECT_HOME_DIR; uri strip_prefix is used,
 		# so the argument for the root directive should take that into account;
 		# prod version - use the build directory;
 		root {args[0]}/packages/webapp/build/client/static-webapp
