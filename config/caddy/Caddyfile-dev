@@ -1,4 +1,4 @@
-# args[0] <-> PROJECT_HOME_DIR
+# args[0] <-> $PROJECT_HOME_DIR
 
 ###############################################################################
 # specific routes for dev

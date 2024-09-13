@@ -1,4 +1,4 @@
-# args[0] <-> PROJECT_HOSTNAME
+# args[0] <-> $PROJECT_HOSTNAME
 
 log {
     output file /var/log/caddy/{args[0]}.log {
