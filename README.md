@@ -48,8 +48,9 @@ createdb --owner=${PGUSER_FOR_PROJECT} --echo ${PGUSER_FOR_PROJECT}
 psql --host=localhost --dbname=${PGUSER_FOR_PROJECT} --username=${PGUSER_FOR_PROJECT} 
 
 # alternative: if the following PG* env variables are set, psql will use them: 
-# PGHOST, PGDATABASE, PGUSER, PGPASSWORD 
-# set those variables in config/env.sh, enter in the nix shell and verify again:
+# PGHOST, PGDATABASE, PGUSER, PGPASSWORD;
+# so we not should set those variables in config/env.sh, enter in the nix shell 
+# and verify again:
 echo $PGHOST,$PGDATABASE,$PGUSER,$PGPASSWORD
 psql
 
@@ -69,7 +70,7 @@ nix-shell
 nix develop  
 
 # install the dependencies with pnpm; make sure that $PWD is at the $PROJECT_HOME_DIR;  
-if [ $PROJECT_HOME_DIR = $PWD ]; then echo "ok!"; fi
+if [ $PWD == $PROJECT_HOME_DIR ]; then echo "ok!"; fi
 
 
 # if we are in production: after pnpm has finished, make sure that `pnpm-lock.yaml` 
@@ -84,10 +85,12 @@ pnpm install
 cd packages/webapp
 
 # 4a - check dev mode
-node --run dev
+pnpm run dev # or "node --run dev"
+
 
 # 4b - prod mode
-node --run build
+pnpm run build # or "node --run build"
+ 
 node build/index.js
 
 # at this point we should have the webapp working on http://localhost:${WEBAPP_PORT}

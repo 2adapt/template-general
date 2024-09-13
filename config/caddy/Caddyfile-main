@@ -1,6 +1,6 @@
-# args[0] = WEBAPP_PORT
-# args[1] = API_PORT
-# args[2] = PROJECT_HOME_DIR
+# args[0] <-> $PROJECT_HOME_DIR
+# args[1] <-> $WEBAPP_PORT
+# args[2] <-> $API_PORT
 
 
 ###############################################################################
@@ -11,7 +11,7 @@ handle /* {
 	#respond "handle /*" 200
 
 	#skip_log
-	reverse_proxy http://localhost:{args[0]}
+	reverse_proxy http://localhost:{args[1]}
 }
 
 
@@ -28,7 +28,7 @@ handle /api/v1/* {
 	#respond "handle /api/v1/*" 200
 
 	#skip_log
-	reverse_proxy http://localhost:{args[1]}
+	reverse_proxy http://localhost:{args[2]}
 }
 
 
@@ -48,9 +48,9 @@ handle /static-public/* {
 	uri strip_prefix /static-public
 	file_server {
 
-		# {args[2]} is the path to the project root directory; uri strip_prefix is used,
+		# {args[0]} is the path to the project root directory; uri strip_prefix is used,
 		# so the argument for the root directive should take that into account
-		root {args[2]}/static-public
+		root {args[0]}/static-public
 		browse
 		precompressed br zstd gzip
 	}
