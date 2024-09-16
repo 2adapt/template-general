@@ -287,7 +287,14 @@ Reference: https://kit.svelte.dev/docs/creating-a-project
 ```bash
 mkdir -p packages/webapp
 cd packages/webapp
-pnpm create svelte@latest  # choose "skeleton project", "jsdoc", "eslint" and "prettier"
+
+# note: `pnpx` is an alias for `pnpm dlx` (and `pnpm dlx` is equivalent to `npx`)
+# choose "skeleton project", "jsdoc", "eslint" and "prettier"
+pnpx create-svelte@latest
+
+# equivalent: pnpm dlx create-svelte@latest
+# equivalent: pnpm create svelte@latest
+
 pnpm install
 
 # if necessary, add extra packages
@@ -316,8 +323,9 @@ pnpm add tailwindcss postcss autoprefixer --save-dev
 # other useful plugins that we use (tailwindUI, and others)
 pnpm add @tailwindcss/forms @tailwindcss/typography @tailwindcss/aspect-ratio tailwind-scrollbar tailwindcss-debug-screens daisyui --save-dev
 
-# initialize the the tailwind.config.js and postcss.config.js configuration files (`pnpm dlx` is equivalent to `npx`)
-pnpm dlx tailwindcss init -p
+# initialize the the tailwind.config.js and postcss.config.js configuration files 
+# note: `pnpx` is an alias for `pnpm dlx` (and `pnpm dlx` is equivalent to `npx`)
+pnpx tailwindcss init --esm --postcss
 ```
 
 This template has adjustments to (or adds) these files:
@@ -383,10 +391,11 @@ Reference: https://github.com/fastify/fastify-cli?tab=readme-ov-file#generate
 mkdir -p packages/api
 cd packages/api
 
-# fastify-cli can be used without an explicit install using `pnpm dlx` or `npx`
+# fastify-cli can be used without an explicit install using `pnpx`/`npx`
+# note: `pnpx` is an alias for `pnpm dlx` (and `pnpm dlx` is equivalent to `npx`)
 
-pnpm dlx fastify-cli generate --help
-pnpm dlx fastify-cli generate . --esm
+pnpx fastify-cli generate --help
+pnpx fastify-cli generate . --esm
 pnpm install
 
 # run in dev mode (has watch mode and pino-pretty logging)
@@ -417,8 +426,8 @@ Create a plugin with `fastify-cli`:
 NOTE: the output will be too opinionated.
 
 ```bash
-pnpm dlx fastify-cli generate-plugin --help
-pnpm dlx fastify-cli generate-plugin the-plugin
+pnpx fastify-cli generate-plugin --help
+pnpx fastify-cli generate-plugin the-plugin
 
 ```
 
