@@ -6,6 +6,7 @@ let config = {
 	plugins: ['prettier-plugin-svelte'],
 	singleAttributePerLine: true,
 	htmlWhitespaceSensitivity: 'strict',
+	endOfLine: 'auto',
 
 	overrides: [
 		{

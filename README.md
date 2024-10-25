@@ -4,44 +4,83 @@ A template to quickstart new projects at 2adapt.
 
 # Assumptions about the server
 
-- Ubuntu 22.04 or similar 
-- the DNS is configured correctly for the associated domain (an "A record")
+- Ubuntu >= 22.04 (or some close cousin) 
+- DNS records are configured correctly for the associated domain (an "A record")
 - The following stuff should be installed in the server (via `apt` or some standalone installer):
 	- Nix: https://github.com/DeterminateSystems/nix-installer
-		- `which nix; which nix-shell; nix --version`
+		- verify: `which nix; which nix-shell; nix --version;`
 	- Caddy: https://caddyserver.com/docs/install#debian-ubuntu-raspbian
-		- `which caddy; sudo systemctl status caddy; caddy version`
+		- verify: `which caddy; sudo systemctl status caddy; caddy version;`
 	- PostgreSQL: https://www.postgresql.org/download/linux/ubuntu/
-		- `ls -l /etc/postgresql; sudo systemctl status postgresql`
+		- verify: `ls -l /etc/postgresql; sudo systemctl status postgresql;`
 	- pnpm (?): https://pnpm.io/installation#on-posix-systems
 		- DEPRECATED! pnpm is now available via nix, using the `corepack` nix package
+    - the `2adapt` group is created and users in that group can manage the `/opt/2adapt` directory
+      - verify: `ls -l /opt;` (we should see `drwxrwsr-x 2 root 2adapt 12:34 2adapt2`)
 
-# Initial steps:
+		
 
-1. set the necessary env variables: 
+# Initial configuration:
+
+## 0 - create the application user and fetch the repo 
+
+```bash
+# 1 - create a (regular) user for the application; add to the "2adapt" group;
+
+APP_USER="app_name"
+sudo adduser ${APP_USER}
+sudo usermod --append --groups 2adapt ${APP_USER}
+groups ${APP_USER}
+
+# note: if we do a usermod for our own user, it's necessary to logout/login
+# to see the effect of the new group in the "groups" command; 
+# or in alternative, re-login with ssh in the localhost
+
+# 2 - now login with the new user, we should now be able to create stuff; 
+
+mkdir /opt/2adapt/temp
+ls -l /opt/2adapt
+
+# 3 - manually fetch the git repo
+
+mkdir /opt/2adapt/app_name
+cd /opt/2adapt/app_name
+git clone git@github.com:2adapt/app_name.git
+```
+
+## 1 - set the necessary env variables and enter the nix shell: 
 ```bash
 cp config/env.sh.template config/env.sh
 emacs config/env.sh
+nix-shell
 ```
 
-2. create the database for the project:
+## 2 - create the database for the project:
 
 ```bash
 export PGUSER_FOR_PROJECT="app_name";
+export PGDATABASE_FOR_PROJECT="$PGUSER_FOR_PROJECT";
 
 # 2.1 - create a database user: normal user or super user:
 
 # 2.1a - a normal user...
 sudo --user postgres \
-createuser --createdb  --inherit --login --no-createrole --no-superuser --pwprompt --echo ${PGUSER_FOR_PROJECT}
+createuser --echo --no-createdb --inherit --login  --pwprompt --no-createrole --no-superuser --no-bypassrls --no-replication ${PGUSER_FOR_PROJECT}
 
 # 2.1b - or a superuser
 sudo --user postgres \
-createuser --superuser --pwprompt --echo ${PGUSER_FOR_PROJECT}
+createuser --echo --superuser --pwprompt ${PGUSER_FOR_PROJECT}
 
 # 2.2 - create the respective database
 sudo --user postgres \
-createdb --owner=${PGUSER_FOR_PROJECT} --echo ${PGUSER_FOR_PROJECT}
+createdb --owner=${PGUSER_FOR_PROJECT} --echo ${PGDATABASE_FOR_PROJECT}
+
+# if necessary, manually install extensions that must be installed by a database superuser:
+# postgis; postgis_raster; postgis_topology; postgis_sfcgal; postgis_topology; dblink; file_fdw; postgres_fdw; pg_stat_statements;
+
+# example: this will also install "postgis", because of "cascade"
+sudo --user postgres \
+psql --dbname=$PGDATABASE_FOR_PROJECT --command="CREATE EXTENSION IF NOT EXISTS postgis_raster CASCADE;"
 
 # 2.3 - make sure we can connect; by default it will connect to a database 
 # with the same name as the username (so --dbname could be omitted below);
@@ -49,7 +88,7 @@ psql --host=localhost --dbname=${PGUSER_FOR_PROJECT} --username=${PGUSER_FOR_PRO
 
 # alternative: if the following PG* env variables are set, psql will use them: 
 # PGHOST, PGDATABASE, PGUSER, PGPASSWORD;
-# so we not should set those variables in config/env.sh, enter in the nix shell 
+# so we now should set those variables in config/env.sh, enter in the nix shell 
 # and verify again:
 echo $PGHOST,$PGDATABASE,$PGUSER,$PGPASSWORD
 psql
@@ -61,7 +100,7 @@ psql --command="insert into test values (2, 'bbb')";
 ```
 
 
-3. enter the nix dev shell and install dependencies from npm:
+## 4 - enter the nix dev shell and install dependencies from npm:
 
 ```bash
 # 3a - classic nix cli...
@@ -72,7 +111,6 @@ nix develop
 # install the dependencies with pnpm; make sure that $PWD is at the $PROJECT_HOME_DIR;  
 if [ $PWD == $PROJECT_HOME_DIR ]; then echo "ok!"; fi
 
-
 # if we are in production: after pnpm has finished, make sure that `pnpm-lock.yaml` 
 # was not modified (it shouldn't if we have `CI="false"` in `config/env.sh`)
 
@@ -80,7 +118,8 @@ pnpm install
 
 ```
 
-4. verify that the SvelteKit webapp can be built and started:
+## 5 - verify that the SvelteKit webapp can be built and started:
+
 ```bash
 cd packages/webapp
 
@@ -96,7 +135,7 @@ node build/index.js
 # at this point we should have the webapp working on http://localhost:${WEBAPP_PORT}
 ```
 
-5. configure DNS and import the project's Caddyfiles in the global Caddyfile (see details in section 1.3 and config/caddy/README.md)
+## 5 - configure DNS and import the project's Caddyfiles in the global Caddyfile (see details in section 1.3 and config/caddy/README.md)
 
 ```bash
 sudo emacs /etc/caddy/Caddyfile
@@ -107,13 +146,13 @@ sudo systemctl restart caddy
 ```
 
 
-6. verify that the api server can be started:
+## 6 - verify that the api server can be started:
 ```bash
 cd packages/api
 node src/server.js  # TODO: add this as a "run" command in package.json
 ```
 
-7. Create the systemd service 
+## 7 - create the systemd service 
 
 See details in the "Systemd units" section ("Reload and activate the service")
 
