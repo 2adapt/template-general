@@ -31,7 +31,7 @@ pkgs.mkShell {
 
 	shellHook = ''
 
-		exit
+		#exit
 		# Mark variables which are modified or created for export.
 		set -a
 
