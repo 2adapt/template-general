@@ -1,3 +1,3 @@
 #!/bin/sh
 
-sudo systemctl restart "app-name-webapp"
+sudo systemctl restart "projectname-webapp"

@@ -3,10 +3,10 @@
 # https://www.freedesktop.org/software/systemd/man/systemd.unit.html
 
 # for clarity, Description should be the same as the symlink created in /etc/systemd/system
-Description="app-name-webapp"
-After=network.target
+Description="projectname-webapp"
+Requires=network.target
+Requires=postgresql.service
 After=postgresql.service
-Wants=postgresql.service
 
 # will try to restart 5 times during a period of 60 seconds; if the process is not running after
 # that period, it enters the 'failed' state;
@@ -21,7 +21,7 @@ StartLimitBurst=5
 
 Type=simple
 User=some_dude
-WorkingDirectory=/opt/2adapt/app-name
+WorkingDirectory=/opt/2adapt/projectname
 ExecStart=/nix/var/nix/profiles/default/bin/nix-shell --run "node packages/webapp/build/index.js"
 #ExecStop=...
 Restart=on-failure
@@ -39,7 +39,16 @@ MemoryAccounting=true
 TasksAccounting=true
 IOAccounting=true
 IPAccounting=true
+
 MemoryMax=1000M
+LimitNOFILE=8192
+
+# other options to consider:
+
+#TimeoutStopSec=5s
+#LimitNPROC=500
+#CPUQuota=50%
+#CPUWeight
 
 #Environment=ONE=123
 #Environment="TWO='with space'"

@@ -1,4 +1,4 @@
 #!/bin/sh
 
-sudo systemctl stop "project-name-webapp"
-#sudo systemctl stop "project-name-api"
+sudo systemctl stop "projectname-webapp"
+#sudo systemctl stop "projectname-api"

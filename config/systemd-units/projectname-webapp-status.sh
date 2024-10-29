@@ -1,3 +1,3 @@
 #!/bin/sh
 
-sudo systemctl status "app-name-webapp"
+sudo systemctl status "projectname-webapp"

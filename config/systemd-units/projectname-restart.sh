@@ -1,4 +1,4 @@
 #!/bin/sh
 
-sudo systemctl restart "project-name-webapp"
-#sudo systemctl restart "project-name-api"
+sudo systemctl restart "projectname-webapp"
+#sudo systemctl restart "projectname-api"

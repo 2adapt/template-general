@@ -1,3 +1,3 @@
 #!/bin/sh
 
-sudo systemctl stop "app-name-webapp"
+sudo systemctl stop "projectname-webapp"
