@@ -11,7 +11,8 @@ let
 	# see also: https://status.nixos.org or https://channels.nixos.org
 	#nixos-XXXX = "https://github.com/NixOS/nixpkgs/archive/<commit_hash>.tar.gz";
 
-	nixpkgs = fetchTarball nixpkgs-2405;
+	# nixpkgs = fetchTarball nixpkgs-2405;
+	nixpkgs = fetchTarball nixpkgs-unstable;
 	pkgs = import nixpkgs { config = {}; overlays = []; };
 in
 pkgs.mkShell {

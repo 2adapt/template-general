@@ -15,7 +15,7 @@ A template to quickstart new projects at 2adapt.
 		- verify: `ls -l /etc/postgresql; sudo systemctl status postgresql;`
 	- pnpm (?): https://pnpm.io/installation#on-posix-systems
 		- DEPRECATED! pnpm is now available via nix, using the `corepack` nix package
-    - the `2adapt` group is created and users in that group can manage the `/opt/2adapt` directory
+    - the `2adapt` group is created; users in that group can manage the `/opt/2adapt` directory
       - verify: `ls -l /opt;` (we should see `drwxrwsr-x 2 root 2adapt 12:34 2adapt2`)
 
 		
@@ -40,11 +40,11 @@ groups ${APP_USER}
 
 mkdir /opt/2adapt/temp
 ls -l /opt/2adapt
+rmdir /opt/2adapt/temp
 
-# 3 - manually fetch the git repo
+# 3 - manually clone the git repo
 
-mkdir /opt/2adapt/app_name
-cd /opt/2adapt/app_name
+cd /opt/2adapt
 git clone git@github.com:2adapt/app_name.git
 ```
 
@@ -154,7 +154,9 @@ node src/server.js  # TODO: add this as a "run" command in package.json
 
 ## 7 - create the systemd service 
 
-See details in the "Systemd units" section ("Reload and activate the service")
+Details here: `config/systemd-units/readme.md`
+
+
 
 
 # Template steps
@@ -474,152 +476,7 @@ pnpx fastify-cli generate-plugin the-plugin
 
 
 
-
-
-
-## 5 - Systemd units
-
-Reference: ...
-
-### Base configuration for a `app-name-webapp` service
-
-Create the configuration file:
-
-```bash
-mkdir -p config/systemd-units/app-name-webapp
-emacs config/systemd-units/app-name-webapp/app-name-webapp.service
-```
-
-Copy-paste:
-
-```bash
-# ...
-```
-
-Reload and activate the `app-name-webapp` service:
-
-```bash
-
-# make sure that $PWD is $PROJECT_HOME_DIR
-if [ $PROJECT_HOME_DIR = $PWD ]; then echo "ok!"; fi
-
-
-# verify that the files exist and that the contents are correct
-ls -l "${PWD}/config/systemd-units/app-name-webapp/app-name-webapp.service"
-cat "${PWD}/config/systemd-units/app-name-webapp/app-name-webapp.service"
-
-sudo ln -s \
-"${PWD}/config/systemd-units/app-name-webapp/app-name-webapp.service" \
-"/etc/systemd/system/app-name-webapp.service"
-
-# verify that the symlinks are correct
-ls -l "/etc/systemd/system/app-name-webapp.service"
-cat "/etc/systemd/system/app-name-webapp.service"
-
-sudo systemctl daemon-reload
-sudo systemctl enable "app-name-webapp.service"
-sudo systemctl start "app-name-webapp.service"
-```
-
-Systemd will create a new link in `/etc/systemd/system/app-name-webapp.service` pointing to out `.service` file.
-
-Other commands to interact with the `app-name-webapp` service:
-
-```bash
-sudo systemctl status "app-name-webapp.service"
-journalctl --unit "app-name-webapp.service" --lines 500
-sudo systemctl restart "app-name-webapp.service"
-sudo systemctl start "app-name-webapp.service"
-sudo systemctl stop "app-name-webapp.service"
-sudo systemctl disable "app-name-webapp.service"
-```
-
-
-### Wrapper scripts for the `app-name-webapp` service
-
-Create a wrapper for `status` subcommand using a simple shell script:
-
-```bash
-touch config/systemd-units/app-name-webapp/status.sh
-chmod 755 config/systemd-units/app-name-webapp/status.sh
-emacs config/systemd-units/app-name-webapp/status.sh
-```
-
-Copy-paste:
-
-```
-#!/bin/sh
-
-sudo systemctl status "app-name-webapp"
-```
-
-We can now see the status of the `app-name-webapp` service using the shell script in the project:
-
-```bash
-sudo config/systemd-units/app-name-webapp/status.sh
-```
-
-If this makes sense we can repeat for other systemd subcommands: `restart` and `stop`.
-
-
-### Wrapper scripts for all services
-
-Similar to the above, but considering all services related to this project:
-
-```bash
-touch config/systemd-units/status-all.sh
-chmod 755 config/systemd-units/status-all.sh
-emacs config/systemd-units/status-all.sh
-```
-
-Copy-paste:
-
-```
-#!/bin/sh
-
-sudo systemctl status "app-name-webapp"
-sudo systemctl status "app-name-api"
-sudo systemctl status "app-name-other"
-```
-
-We can now see the status of all services:
-
-```bash
-sudo config/systemd-units/status-all.sh
-```
-
-
-### Specific configuration for `app-name-webapp` (if necessary)
-
-Add the missing options in the `[Service]` section using the `systemctl edit` command. More details here: https://www.linode.com/docs/guides/introduction-to-systemctl/#editing-a-unit-file
-
-```bash
-export SYSTEMD_EDITOR=emacs
-sudo systemctl edit "app-name-webapp"
-```
-
-Add add something like this:
-
-```bash
-
-[Service]
-
-User=...
-WorkingDirectory=/path/to/project-home-dir-base-dir
-ExecStart=/nix/var/nix/profiles/default/bin/nix-shell --run node packages/api/server.js
-
-```
-
-Any changes to the configuration files requires a reload and restart of the service:
-
-```bash
-sudo systemctl daemon-reload
-sudo systemctl restart "app-name-webapp.service"
-sudo systemctl status "app-name-webapp.service"
-```
-
-We should now have a new directory in `/etc/systemd/system/app-name-webapp.service.d`.
-
+ 
 
 
 

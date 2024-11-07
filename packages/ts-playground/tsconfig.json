@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "outDir": "./build",
+
+    // use "esnext" to emit JS syntax untouched
+    "target": "esnext",
+    // "target": "es5",
+    // "target": "es2015",
+
+    // class fields are preserved as written which corresponds to 'define' semantics in the ECMAScript
+    // "useDefineForClassFields": true,
+
+    // "any imports or exports without a type modifier are left around. Anything that uses the type modifier is dropped entirely."; "what you see is what you get."
+    //"verbatimModuleSyntax": true,
+
+    // "module": "esnext",
+    //"allowImportingTsExtensions": true,
+    // "emitDeclarationOnly": true,
+    // "declaration": true
+
+//     "moduleResolution": "nodenext",
+//     "module": "nodenext"
+  },
+  "files": ["src/main.ts"]
+}
