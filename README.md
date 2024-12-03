@@ -331,10 +331,10 @@ cd packages/webapp
 
 # note: `pnpx` is an alias for `pnpm dlx` (and `pnpm dlx` is equivalent to `npx`)
 # choose "skeleton project", "jsdoc", "eslint" and "prettier"
-pnpx create-svelte@latest
+pnpx create-svelte@6
 
-# equivalent: pnpm dlx create-svelte@latest
-# equivalent: pnpm create svelte@latest
+# equivalent: pnpm dlx create-svelte@6
+# equivalent: pnpm create svelte@6
 
 pnpm install
 

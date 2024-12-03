@@ -6,12 +6,13 @@
 
 let
     nixpkgs-unstable = "https://github.com/NixOS/nixpkgs/archive/nixpkgs-unstable.tar.gz";
-    nixpkgs-2405 = "https://github.com/NixOS/nixpkgs/archive/24.05.tar.gz";
+    nixpkgs-2411 = "https://github.com/NixOS/nixpkgs/archive/24.11.tar.gz";
 
 	# see also: https://status.nixos.org or https://channels.nixos.org
 	#nixos-XXXX = "https://github.com/NixOS/nixpkgs/archive/<commit_hash>.tar.gz";
 
-	# nixpkgs = fetchTarball nixpkgs-2405;
+	# change to nixpkgs-2411 when available
+	#nixpkgs = fetchTarball nixpkgs-2411;
 	nixpkgs = fetchTarball nixpkgs-unstable;
 	pkgs = import nixpkgs { config = {}; overlays = []; };
 in

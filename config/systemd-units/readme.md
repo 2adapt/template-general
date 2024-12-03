@@ -40,7 +40,7 @@ cat "/etc/systemd/system/projectname-webapp.service"
 
 # reload the systemd manager configuration; this automatically create symlinks 
 # in /etc/systemd/system/multi-user.target.wants (because we have
-"WantedBy=multi-user.target" in the "[Install]" section)
+# "WantedBy=multi-user.target" in the "[Install]" section)
 
 sudo systemctl daemon-reload
 sudo systemctl enable "projectname-webapp.service"
@@ -51,16 +51,28 @@ Other commands to interact with the `projectname-webapp` service:
 
 ```bash
 sudo systemctl status "projectname-webapp.service"
-journalctl --unit "projectname-webapp.service" --lines 500
 sudo systemctl restart "projectname-webapp.service"
 sudo systemctl start "projectname-webapp.service"
 sudo systemctl stop "projectname-webapp.service"
 sudo systemctl disable "projectname-webapp.service"
 ```
 
+Active process monitoring (live)
+
+```shell
+journalctl --unit "projectname-webapp.service" --follow
+```
+
+Check logs
+
+```shell
+journalctl --unit "projectname-webapp.service" --lines 500
+```
+
+
 ### Updates to the service file
 
-```
+```shell
 # edit the file
 emacs "${PWD}/config/systemd/projectname-webapp.service"
 
@@ -75,7 +87,7 @@ sudo systemctl status "projectname-webapp.service"
 
 ### Remove the service
 
-```
+```shell
 # this might be necessary if we rename the .service files
 sudo systemctl stop "projectname-webapp.service"
 sudo systemctl disable "projectname-webapp.service"
@@ -95,7 +107,7 @@ emacs config/systemd/projectname-webapp-status.sh
 
 Copy-paste:
 
-```
+```shell
 #!/bin/sh
 
 sudo systemctl status "projectname-webapp"
@@ -123,7 +135,7 @@ emacs config/systemd/projectname-all-status.sh
 
 Copy-paste:
 
-```
+```shell
 #!/bin/sh
 
 sudo systemctl status "projectname-webapp"
