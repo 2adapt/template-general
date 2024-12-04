@@ -1,26 +1,26 @@
 {
   "compilerOptions": {
     "strict": true,
-    "outDir": "./build",
-
-    // use "esnext" to emit JS syntax untouched
+    "outDir": "build",
+    "declaration": true,
+    "declarationDir": "build/types",
+    // "declarationMap": true,
+    "noEmitOnError": true,
+    "rewriteRelativeImportExtensions": true,
+    "allowImportingTsExtensions": true,
     "target": "esnext",
-    // "target": "es5",
-    // "target": "es2015",
+    "allowJs": true,
+    // "checkJs": true,
 
-    // class fields are preserved as written which corresponds to 'define' semantics in the ECMAScript
-    // "useDefineForClassFields": true,
+    // avoid the "Do you need to change your target library?" errors
+    // "skipLibCheck": true,
 
-    // "any imports or exports without a type modifier are left around. Anything that uses the type modifier is dropped entirely."; "what you see is what you get."
-    //"verbatimModuleSyntax": true,
+    // "any imports or exports without a type modifier are left around. Anything that uses the type modifier is dropped entirely."
+    "verbatimModuleSyntax": true,
 
-    // "module": "esnext",
-    //"allowImportingTsExtensions": true,
-    // "emitDeclarationOnly": true,
-    // "declaration": true
-
-//     "moduleResolution": "nodenext",
-//     "module": "nodenext"
+    "module": "nodenext",
+    // avoid the "Cannot redeclare block-scoped variable" errors; see: https://www.totaltypescript.com/cannot-redeclare-block-scoped-variable
+    "moduleDetection": "force"
   },
-  "files": ["src/main.ts"]
+  "include": ["src/00-main.ts"],
 }

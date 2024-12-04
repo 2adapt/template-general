@@ -1,0 +1,38 @@
+{
+  "name": "ts-playground",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "// COMMAND 1": "compile typescript using the official compiler",
+    "ts-compile": "tsc",
+    "ts-compile:watch": "tsc --watch",
+    "// COMMAND 2": "check typescript using the official compiler",
+    "ts-check": "tsc --noEmit",
+    "ts-check:watch": "tsc --watch --noEmit",
+    "// COMMAND 3": "run typescript with nodejs using the experimental options that will do type erasure (nodejs version >= v22.6)",
+    "ts-run": "node --disable-warning=ExperimentalWarning --experimental-strip-types src/00-main.ts",
+    "ts-run:watch": "node --watch --disable-warning=ExperimentalWarning --experimental-strip-types src/00-main.ts",
+    "// COMMAND 4": "combine previous commands: first check, then run; there is no output files here;",
+    "ts-check-and-run": "node --run ts-check && node --run ts-run",
+    "ts-check-and-run:watch": "nodemon --exec \"node --run ts-check && node --run ts-run\" --ext ts",
+    "// COMMAND 5": "same as COMMAND 3, but using ts-blank-space instead of --experimental-strip-types (useful for nodejs < 22.6; or to keep the line numbers intact)",
+    "ts-run-blank": "node --import=ts-blank-space/register src/00-main.ts",
+    "ts-run-blank:watch": "node --watch --import=ts-blank-space/register src/00-main.ts",
+    "// COMMAND 6": "same as COMMAND 4, but using ts-blank-space",
+    "ts-check-and-run-blank": "pnpm --run ts-check && pnpm --run ts-run-blank",
+    "ts-check-and-run-blank:watch": "nodemon --exec \"pnpm --run ts-check && pnpm --run ts-run-blank\" --ext ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@9.7.1+sha1.b0ae55d11432e1af341998848fdc219a62f7623a",
+  "dependencies": {
+    "@types/node": "22.10.1",
+    "nodemon": "3.1.7",
+    "ts-blank-space": "0.4.4",
+    "typescript": "5.7.2"
+  }
+}
