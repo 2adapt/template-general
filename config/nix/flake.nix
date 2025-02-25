@@ -3,9 +3,12 @@
 
 	inputs.devshell.url = "github:numtide/devshell";
 	inputs.flake-utils.url = "github:numtide/flake-utils";
+
 	inputs.nixpkgs.url = "https://github.com/NixOS/nixpkgs/archive/refs/heads/nixos-24.11.tar.gz";
-	#inputs.nixpkgs.url = "github:NixOS/nixpkgs/24.05";
-	#inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+	#inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
+
+	#inputs.nixpkgs.url = "https://github.com/NixOS/nixpkgs/archive/refs/heads/nixos-unstable.tar.gz";
+	#inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
 	outputs = { self, nixpkgs, devshell, flake-utils, ... }:
 		flake-utils.lib.eachDefaultSystem (system: {
@@ -20,8 +23,8 @@
 				# example: https://github.com/chvp/nixos-config/blob/main/shells/dodona.nix
 				pkgs.devshell.mkShell {
 
-					motd = "welcome to the template-for-monorepo devshell";
-					name = "template-for-monorepo";  # will have impact in the DEVSHELL_DIR env variable; see below
+					#motd = "welcome to the template-for-monorepo devshell";
+					#name = "template-for-monorepo";  # will have impact in the DEVSHELL_DIR env variable; see below
 					#imports = [ (pkgs.devshell.importTOML ../env.toml) ];
 
 					devshell.packages = [
@@ -63,17 +66,25 @@
 						s1 = {
 							text = ''
 
-							echo "at startup"
+								echo "at devshell.startup"
+								# exit
 
-							set -a
-							source $PRJ_ROOT/config/env.sh
-							set +a
+								PROJECT_ROOT_DIR="$PRJ_ROOT"
+								PROJECT_HOME_DIR="$PRJ_ROOT"
 
-							# show basic informations about the database; psql will use the PG* env variables to make the connection;
-							psql --command="select current_database(), current_user, split_part(version(), ' ', 2) as version, inet_server_addr() as server_addr, inet_server_port() as server_port"
+								# enable the locales that are currently available (outside nix-shell)
+								# reference: https://nixos.wiki/wiki/Locales
+								# reference: https://unix.stackexchange.com/questions/743239/how-to-set-locale-in-nix-shell-on-ubuntu
+								LOCALE_ARCHIVE=/usr/lib/locale/locale-archive
 
-							alias npm="echo npm is not available in this shell. Use pnpm instead."
-							alias cat=bat
+								# automatically exports all subsequently defined variables to the environment
+								set -o allexport
+								source $PRJ_ROOT/config/env.sh
+								set +o allexport
+
+								alias npm="echo \"npm is not available in this nix-shell. Use pnpm instead.\""
+								alias cat_original=$(which cat)
+								alias cat=bat
 
 							'';
 						};

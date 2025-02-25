@@ -32,9 +32,6 @@ pkgs.mkShell {
 		# echo "Exiting"
 		# exit
 
-		# Mark variables which are modified or created for export.
-		set -a
-
 		# find the correct path to config/env.sh; we have to handle the discrepancy that happens
 		# for the different ways nix-shell can be started:
 		#
@@ -46,29 +43,29 @@ pkgs.mkShell {
 		# reference: https://releases.nixos.org/nix/nix-2.24.0/manual/release-notes/rl-2.24.html
 
 		if [[ "${toString ./.}" == *"/config/nix" ]]; then
-			PATH_TO_CONFIG_ENV="${toString ../env.sh}"
+			CONFIG_ENV="${toString ../env.sh}"
 		else
-			PATH_TO_CONFIG_ENV="${toString ./config/env.sh}"
+			CONFIG_ENV="${toString ./config/env.sh}"
 		fi
-
-		source $PATH_TO_CONFIG_ENV;
 
 		# restore the env variables available in numtide/devshell (PRJ_ROOT)
 		# reference: https://github.com/numtide/devshell?tab=readme-ov-file#clean-environment
-		PRJ_ROOT=$(dirname $(dirname "$PATH_TO_CONFIG_ENV"))
-
-		# this variable is currently set in env.sh, we can also do it here (but will be less explicit)
-		PROJECT_HOME_DIR="$PRJ_ROOT"
-		PROJECT_ROOT_DIR="$PRJ_ROOT"
+		PRJ_ROOT=$(dirname $(dirname "$CONFIG_ENV"))
+		PROJECT_ROOT_DIR=$PRJ_ROOT
+		PROJECT_HOME_DIR=$PRJ_ROOT
 
 		# enable the locales that are currently available (outside nix-shell)
 		# reference: https://nixos.wiki/wiki/Locales
 		# reference: https://unix.stackexchange.com/questions/743239/how-to-set-locale-in-nix-shell-on-ubuntu
 		LOCALE_ARCHIVE=/usr/lib/locale/locale-archive
 
-		set +a
+		# automatically exports all subsequently defined variables to the environment
+		set -o allexport
+		source $CONFIG_ENV;
+		set +o allexport
 
-		alias npm="echo \"npm is not available in the nix-shell. Use pnpm instead.\""
+		alias npm="echo \"npm is not available in this nix-shell. Use pnpm instead.\""
+		alias cat_original=$(which cat)
 		alias cat=bat
 
 		# MOTD - show basic informations about the database; psql will use the PG* env variables;
@@ -77,10 +74,10 @@ pkgs.mkShell {
 		# and the output is json (or some other structured format)
 
 		if [[ "$SHOW_MOTD" != "false" ]]; then
-			#echo "PATH_TO_CONFIG_ENV: $PATH_TO_CONFIG_ENV"
-			#echo "PROJECT_ROOT_DIR: $PROJECT_ROOT_DIR"
-
 			echo "You are now in a nix shell."
+
+			#echo "CONFIG_ENV=$CONFIG_ENV"
+			#echo "PROJECT_ROOT_DIR=$PROJECT_ROOT_DIR"
 
 			echo ""
 			echo "Available env variables: \"cat config/env.sh\""
@@ -97,7 +94,7 @@ pkgs.mkShell {
 					current_setting('timezone') as db_timezone,
 					left(current_setting('server_version'), 20) as pg_version,
 					current_setting('search_path') as search_path,
-					current_setting('default_tablespace') as default_tablespace;
+					current_setting('default_tablespace') as default_tablespace
 
 					-- other settings to check: work_mem, max_connections, shared_buffers
 			"
