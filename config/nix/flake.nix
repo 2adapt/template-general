@@ -3,7 +3,8 @@
 
 	inputs.devshell.url = "github:numtide/devshell";
 	inputs.flake-utils.url = "github:numtide/flake-utils";
-	inputs.nixpkgs.url = "github:NixOS/nixpkgs/24.05";
+	inputs.nixpkgs.url = "https://github.com/NixOS/nixpkgs/archive/refs/heads/nixos-24.11.tar.gz";
+	#inputs.nixpkgs.url = "github:NixOS/nixpkgs/24.05";
 	#inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
 	outputs = { self, nixpkgs, devshell, flake-utils, ... }:
