@@ -48,6 +48,9 @@ pkgs.mkShell {
 			CONFIG_ENV="${toString ./config/env.sh}"
 		fi
 
+		# automatically exports all subsequently defined variables to the environment
+		set -o allexport
+
 		# restore the env variables available in numtide/devshell (PRJ_ROOT)
 		# reference: https://github.com/numtide/devshell?tab=readme-ov-file#clean-environment
 		PRJ_ROOT=$(dirname $(dirname "$CONFIG_ENV"))
@@ -59,9 +62,8 @@ pkgs.mkShell {
 		# reference: https://unix.stackexchange.com/questions/743239/how-to-set-locale-in-nix-shell-on-ubuntu
 		LOCALE_ARCHIVE=/usr/lib/locale/locale-archive
 
-		# automatically exports all subsequently defined variables to the environment
-		set -o allexport
 		source $CONFIG_ENV;
+
 		set +o allexport
 
 		alias npm="echo \"npm is not available in this nix-shell. Use pnpm instead.\""

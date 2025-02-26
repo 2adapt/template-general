@@ -69,6 +69,9 @@
 								echo "at devshell.startup"
 								# exit
 
+								# automatically exports all subsequently defined variables to the environment
+								set -o allexport
+
 								PROJECT_ROOT_DIR="$PRJ_ROOT"
 								PROJECT_HOME_DIR="$PRJ_ROOT"
 
@@ -77,9 +80,8 @@
 								# reference: https://unix.stackexchange.com/questions/743239/how-to-set-locale-in-nix-shell-on-ubuntu
 								LOCALE_ARCHIVE=/usr/lib/locale/locale-archive
 
-								# automatically exports all subsequently defined variables to the environment
-								set -o allexport
 								source $PRJ_ROOT/config/env.sh
+
 								set +o allexport
 
 								alias npm="echo \"npm is not available in this nix-shell. Use pnpm instead.\""
