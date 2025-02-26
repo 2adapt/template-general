@@ -72,14 +72,6 @@
 								# automatically exports all subsequently defined variables to the environment
 								set -o allexport
 
-								PROJECT_ROOT_DIR="$PRJ_ROOT"
-								PROJECT_HOME_DIR="$PRJ_ROOT"
-
-								# enable the locales that are currently available (outside nix-shell)
-								# reference: https://nixos.wiki/wiki/Locales
-								# reference: https://unix.stackexchange.com/questions/743239/how-to-set-locale-in-nix-shell-on-ubuntu
-								LOCALE_ARCHIVE=/usr/lib/locale/locale-archive
-
 								source $PRJ_ROOT/config/env.sh
 
 								set +o allexport
@@ -87,6 +79,8 @@
 								alias npm="echo \"npm is not available in this nix-shell. Use pnpm instead.\""
 								alias cat_original=$(which cat)
 								alias cat=bat
+
+								# TODO: show MOTD as in shell.nix?
 
 							'';
 						};

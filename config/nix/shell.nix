@@ -54,13 +54,6 @@ pkgs.mkShell {
 		# restore the env variables available in numtide/devshell (PRJ_ROOT)
 		# reference: https://github.com/numtide/devshell?tab=readme-ov-file#clean-environment
 		PRJ_ROOT=$(dirname $(dirname "$CONFIG_ENV"))
-		PROJECT_ROOT_DIR=$PRJ_ROOT
-		PROJECT_HOME_DIR=$PRJ_ROOT
-
-		# enable the locales that are currently available (outside nix-shell)
-		# reference: https://nixos.wiki/wiki/Locales
-		# reference: https://unix.stackexchange.com/questions/743239/how-to-set-locale-in-nix-shell-on-ubuntu
-		LOCALE_ARCHIVE=/usr/lib/locale/locale-archive
 
 		source $CONFIG_ENV;
 
