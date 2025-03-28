@@ -1,3 +1,4 @@
+# use args[N] for v2.8; use {blocks.FOO} for v2.9;
 # args[0] <-> $PROJECT_HOME_DIR
 
 ###############################################################################
@@ -28,7 +29,9 @@ handle /static-webapp/* {
 		# {args[0]} is the path to PROJECT_HOME_DIR; uri strip_prefix is used,
 		# so the argument for the root directive should take that into account;
 		# prod version - use the build directory;
-		root {args[0]}/packages/webapp/build/client/static-webapp
+
+		#root {args[0]}/packages/webapp/build/client/static-webapp
+		root {blocks.PROJECT_HOME_DIR}/packages/webapp/build/client/static-webapp
 		browse
 		precompressed br zstd gzip
 	}

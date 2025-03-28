@@ -1,3 +1,4 @@
+# use args[N] for v2.8; use {blocks.FOO} for v2.9;
 # args[0] <-> $WEBAPP_PORT
 
 ###############################################################################
@@ -12,30 +13,36 @@
 
 handle /@fs/* {
 	skip_log
-	reverse_proxy http://localhost:{args[0]}
+	#reverse_proxy http://localhost:{args[0]}
+	reverse_proxy http://localhost:{blocks.WEBAPP_PORT}
 }
 
 handle /@vite/* {
 	skip_log
-	reverse_proxy http://localhost:{args[0]}
+	#reverse_proxy http://localhost:{args[0]}
+	reverse_proxy http://localhost:{blocks.WEBAPP_PORT}
 }
 
 handle /@id/* {
 	skip_log
-	reverse_proxy http://localhost:{args[0]}
+	#reverse_proxy http://localhost:{args[0]}
+	reverse_proxy http://localhost:{blocks.WEBAPP_PORT}
 }
 
 handle /node_modules/* {
 	skip_log
-	reverse_proxy http://localhost:{args[0]}
+	#reverse_proxy http://localhost:{args[0]}
+	reverse_proxy http://localhost:{blocks.WEBAPP_PORT}
 }
 
 handle /.svelte-kit/* {
 	skip_log
-	reverse_proxy http://localhost:{args[0]}
+	#reverse_proxy http://localhost:{args[0]}
+	reverse_proxy http://localhost:{blocks.WEBAPP_PORT}
 }
 
 handle /src/* {
 	skip_log
-	reverse_proxy http://localhost:{args[0]}
+	#reverse_proxy http://localhost:{args[0]}
+	reverse_proxy http://localhost:{blocks.WEBAPP_PORT}
 }

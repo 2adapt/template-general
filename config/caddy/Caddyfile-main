@@ -1,17 +1,30 @@
-# args[0] <-> $PROJECT_HOME_DIR
-# args[1] <-> $WEBAPP_PORT
-# args[2] <-> $API_PORT
+# v2.8 - import with arguments
 
+#vars {
+#	WEBAPP_PORT {args[0]}
+#	API_PORT {args[1]}
+#	STATIC_PUBLIC_DIR {args[2]}
+#}
+
+# v2.9 - import with a block (https://github.com/caddyserver/caddy/pull/6130)
+
+vars {
+	{blocks.vars}
+}
 
 ###############################################################################
 # webapp routes (SvelteKit)
 ###############################################################################
 
+
 handle /* {
 	#respond "handle /*" 200
 
 	#skip_log
-	reverse_proxy http://localhost:{args[1]}
+	reverse_proxy {
+		to localhost:{vars.WEBAPP_PORT}
+	}
+
 }
 
 
@@ -28,7 +41,10 @@ handle /api/v1/* {
 	#respond "handle /api/v1/*" 200
 
 	#skip_log
-	reverse_proxy http://localhost:{args[2]}
+	reverse_proxy {
+		to localhost:{vars.API_PORT}
+	}
+
 }
 
 
@@ -46,11 +62,12 @@ handle /static-public/* {
 
 	#skip_log
 	uri strip_prefix /static-public
-	file_server {
 
-		# {args[0]} is the path to the project root directory; uri strip_prefix is used,
-		# so the argument for the root directive should take that into account
-		root {args[0]}/static-public
+	# note: routes for file_server that have some initial path segment (such as "/something/*")
+	# should always be paired with a respective strip_prefix
+
+	file_server {
+		root {vars.STATIC_PUBLIC_DIR}
 		browse
 		precompressed br zstd gzip
 	}
@@ -69,7 +86,7 @@ handle /caddy-debug/* {
 ===
 placeholders reference: https://caddyserver.com/docs/caddyfile/concepts#placeholders
 
-hostname: {system.hostname} 
+hostname: {system.hostname}
 wd: {system.wd}
 system: {system.arch}-{system.os}
 remote_host: {remote_host}

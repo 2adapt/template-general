@@ -32,7 +32,9 @@ handle /static-webapp/* {
 		# {args[0]} is the path to PROJECT_HOME_DIR; uri strip_prefix is used,
 		# so the argument for the root directive should take that into account;
 		# dev version - use the original static directory
-		root {args[0]}/packages/webapp/static/static-webapp
+
+		#root {args[0]}/packages/webapp/static/static-webapp
+		root {blocks.PROJECT_HOME_DIR}/packages/webapp/static/static-webapp
 		browse
 		precompressed br zstd gzip
 	}

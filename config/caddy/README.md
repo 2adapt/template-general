@@ -20,7 +20,17 @@ the-domain.local {
     # args[1] <-> $WEBAPP_PORT ("5000")
     # args[2] <-> $API_PORT ("5001")
 
-    import "/path/to/project-home-dir/config/caddy/Caddyfile-main" "/path/to/project-home-dir" "5000" "5001" 
+    # v2.8 - import with arguments
+    #import "/path/to/project-home-dir/config/caddy/Caddyfile-main" "/path/to/project-home-dir" "5000" "5001"
+    
+    # v2.9 - import with a block (https://github.com/caddyserver/caddy/pull/6130)
+    import "/path/to/project-home-dir/config/caddy/Caddyfile-main" {
+		PROJECT_HOME_DIR "/path/to/project-home-dir"
+		WEBAPP_PORT 5000
+		API_PORT 5001
+    }
+    
+    # the lines below are relative to 2.8
     
     # args[0] <-> $PROJECT_HOSTNAME ("the-domain.local")
     # import "/path/to/project-home-dir/config/caddy/Caddyfile-log" "the-domain.local"
