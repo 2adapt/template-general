@@ -1,0 +1,1 @@
+export { default as function1, function2 } from "./bar.ts";
