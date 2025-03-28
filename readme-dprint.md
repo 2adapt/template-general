@@ -1,4 +1,10 @@
-### Multiple `dprint.json` configuration files on webstorm
+### Initialize
+
+ ```shell
+ dprint init
+ ```
+
+### WebStorm - Multiple `dprint.json` configuration files in the project
 
 `dprint` will use the local `dprint.json` configuration (example: `packages/api/dprint.json`) if we format directly from the command line:
 
