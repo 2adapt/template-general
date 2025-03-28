@@ -80,8 +80,8 @@ pkgs.mkShell {
 			echo ""
 			echo "Database:"
 
-			psql \
-			--command="
+			psql --pset pager=off --command="
+
 				SELECT
 					current_database() as db_name,
 					current_user as db_user,
