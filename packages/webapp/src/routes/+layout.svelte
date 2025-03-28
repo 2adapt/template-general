@@ -12,6 +12,7 @@ $: {
 		navigationLog = [...navigationLog, { storeValue: $navigating, ts: Date.now() }];
 	}
 }
+
 </script>
 
 <svelte:head>
@@ -22,11 +23,11 @@ $: {
 
 <hr />
 
-<footer class="border border-gray-400 my-20">
-	<p>the footer (+layout.svelte)</p>
+<footer class="border-4 border-orange-400 my-4">
+	<p>the footer (/routes/+layout.svelte)</p>
 	<!--https://kit.svelte.dev/docs/modules-->
 
-	<div class="flex">
+	<div class="flex p-2 space-x-4">
 		<Inspect
 			title="the page store"
 			value="{$page}"
@@ -41,6 +42,10 @@ $: {
 		></Inspect>
 	</div>
 </footer>
+
+
+
+
 
 {#if dev}
 	<span
