@@ -1,5 +1,5 @@
 import * as fs from "node:fs";
-import { join, dirname, sep } from "node:path";
+import path from "node:path";
 
 
 // Copyright 2024 Bloomberg Finance L.P.
@@ -46,13 +46,23 @@ const scanner = tslib.createScanner(99, /*skipTrivia: */ true, 0);
  * @returns the resulting JavaScript
  */
 
-const inputPathRel = "src/00-main.ts";
-const inputPathAbs = join(import.meta.dirname, inputPathRel);
+//const inputPathRel = "src/00-main.ts";
+const inputPathRel = "src/02-not-ts.js";
+const inputPathAbs = path.join(import.meta.dirname, '..', inputPathRel);
 let srcOriginal = fs.readFileSync(inputPathAbs, { encoding: 'utf-8' });
-console.log('srcOriginal', srcOriginal)
 
+console.log('<srcOriginal>')
+console.log(srcOriginal)
+console.log('</srcOriginal>')
 
 //tslib.createSourceFile("input.ts", input, languageOptions, /* setParentNodes: */ false, tslib.ScriptKind.TS)
 let src = tslib.createSourceFile("input.ts", srcOriginal, languageOptions, /* setParentNodes: */ false, 3);
-console.log('src', src);
-console.log('src.statements', src.statements);
+
+console.log('<src>')
+console.log(src)
+console.log('</src>')
+
+
+console.log('<src.statements>')
+console.log(src.statements)
+console.log('</src.statements>')

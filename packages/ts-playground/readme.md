@@ -87,10 +87,12 @@ https://github.com/privatenumber/ts-runtime-comparison
 https://github.com/bloomberg/ts-blank-space
 
 - does type erasure but keeping the exact line numbers!
+- unlike the type stripping in nodejs, with this one we can load typescript directly from `node_modules` (see https://github.com/nodejs/node/issues/57215#issuecomment-2691771420)
 - simple and minimal; no dependencies except for the official compiler
 - some context here: https://x.com/acutmore/status/1836762324452975021
 - more context
   - 10 Insights from Adopting TypeScript at Scale https://www.bloomberg.com/company/stories/10-insights-adopting-typescript-at-scale/
+  - talk by Ashley Claymore https://www.youtube.com/watch?v=ZiD5zWlHBnY
   - Learnings from ts-blank-space https://gist.github.com/acutmore/27444a9dbfa515a10b25f0d4707b5ea2
   - in practice this approach is also done by the nodejs with the new `--experimental-strip-types`; details here:
     - https://x.com/jalik26/status/1836804296416895025
