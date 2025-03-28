@@ -31,7 +31,7 @@ cat "${PWD}/config/systemd/projectname-webapp.service"
 ls -l "/etc/systemd/system/projectname-webapp.service"
 
 # create the symlink in /etc/systemd/system;
-sudo ln -s \
+sudo ln --symbolic \
 "${PWD}/config/systemd/projectname-webapp.service" \
 "/etc/systemd/system/projectname-webapp.service"
 
