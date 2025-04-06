@@ -33,6 +33,6 @@
     "@types/node": "22.10.1",
     "nodemon": "3.1.7",
     "ts-blank-space": "0.4.4",
-    "typescript": "5.7.2"
+    "typescript": "5.8.2"
   }
 }

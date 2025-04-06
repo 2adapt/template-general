@@ -8,4 +8,4 @@ config/env.sh
 # kitty
 config/kitty/*
 kitty
-/packages/ts-playground/build/
+/packages/ts-playground/build*

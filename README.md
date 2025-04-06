@@ -42,7 +42,8 @@ mkdir /opt/2adapt/temp
 ls -l /opt/2adapt
 rmdir /opt/2adapt/temp
 
-# 3 - manually clone the git repo
+# 3 - manually clone the git repo; this assumes that the ssh keys are already set up
+# for this user; 
 
 cd /opt/2adapt
 git clone git@github.com:2adapt/app_name.git
@@ -80,7 +81,7 @@ createdb --owner=${PGUSER_FOR_PROJECT} --echo ${PGDATABASE_FOR_PROJECT}
 
 # example: this will also install "postgis", because of "cascade"
 sudo --user postgres \
-psql --dbname=$PGDATABASE_FOR_PROJECT --command="CREATE EXTENSION IF NOT EXISTS postgis_raster CASCADE;"
+psql --dbname=${PGDATABASE_FOR_PROJECT} --command="CREATE EXTENSION IF NOT EXISTS postgis_raster CASCADE;"
 
 # 2.3 - make sure we can connect; by default it will connect to a database 
 # with the same name as the username (so --dbname could be omitted below);
@@ -100,7 +101,7 @@ psql --command="insert into test values (2, 'bbb')";
 ```
 
 
-## 4 - enter the nix dev shell and install dependencies from npm:
+## 4 - enter the nix dev shell and install dependencies from npm (with pnpm):
 
 ```bash
 # 3a - classic nix cli...
@@ -159,7 +160,7 @@ Details here: `config/systemd-units/readme.md`
 
 
 
-# Template steps
+# Steps for the reconstruction of the template
 
 ## 1 - Create the initial monorepo structure, to be managed by `pnpm` and `nix`:
 
@@ -190,8 +191,8 @@ It's convenient to have a shortcut for `config/nix/flake.nix` and `config/nix/sh
 
 ```bash
 # note that we actually want the symlink to have a relative path
-ln -s ./config/nix/flake.nix flake.nix
-ln -s ./config/nix/shell.nix shell.nix
+ln --symbolic ./config/nix/flake.nix flake.nix
+ln --symbolic ./config/nix/shell.nix shell.nix
 
 # to enter the devshell using the new nix cli it's necessary that flake.nix is already part of the repo
 git add flake.nix
@@ -202,7 +203,7 @@ nix develop # using the new nix cli and flakes
 nix-shell # or using the classic nix cli
 ```
 
-## 1.3 - caddy files
+## 1.3 - caddy configuration
 
 ```bash
 mkdir -p config/caddy
@@ -254,7 +255,28 @@ Caddy must be reloaded after the global Caddyfile (or one of the included Caddyf
 ```bash
 sudo systemctl reload caddy
 sudo systemctl status caddy
+
+# check for errors
+journalctl -xeu caddy.service
+
 ```
+
+A common error might be this:
+
+>"File to import not found: /path/to/file/Caddyfile-main, at /etc/caddy/Caddyfile:999"
+
+This will happen is the directory where "Caddyfile-main" is located (or any of the parent directories) does not have permission for the caddy process to access it (for instance, if it is `drwxr-x---`).
+
+It can solved by adding the "caddy" user to the group associated to the directory:
+
+```shell
+DIRECTORY_GROUP=...
+sudo usermod --append --groups ${DIRECTORY_GROUP} caddy
+
+# verify that "caddy" is now part of the group
+getent group ${DIRECTORY_GROUP}
+```
+
 
 We should now be able to load the webapp using `https://the-domain.local/caddy-debug/hello` (see step 3)
 
@@ -331,15 +353,25 @@ cd packages/webapp
 
 # note: `pnpx` is an alias for `pnpm dlx` (and `pnpm dlx` is equivalent to `npx`)
 # choose "skeleton project", "jsdoc", "eslint" and "prettier"
-pnpx create-svelte@6
 
-# equivalent: pnpm dlx create-svelte@6
-# equivalent: pnpm create svelte@6
+# NOTE create-svelte is now obsolete; it was replaced by the new "sv" CLI command:
+# https://svelte.dev/blog/sv-the-svelte-cli
 
+# pnpx create-svelte@6
+
+# equivalent command: pnpm dlx create-svelte@6
+# equivalent command: pnpm create svelte@6
+
+pnpx sv help
+
+# choose these options: eslint; tailwindcss; sveltekit-adapter
+pnpx sv create --no-install
 pnpm install
+pnpm run dev
 
 # if necessary, add extra packages
-pnpm add @sveltejs/adapter-node @poppanator/sveltekit-svg --save-dev
+pnpm add @sveltejs/adapter-node@5.2 --save-dev
+pnpm add @poppanator/sveltekit-svg --save-dev
 
 # run in dev mode
 pnpm run dev
@@ -353,16 +385,49 @@ This template has adjustments to (or adds) these files:
 - `src/static` (all static assets should be placed instead in `src/static/static-webapp`)
 
 
+
+
+eslint.config.js
+
+	{
+		rules: {
+			"prefer-const": "off",
+			"@typescript-eslint/no-unused-vars": "off"
+		}
+	}
+
+
+
+tsconfig.json
+
+
+"checkJs": false,
+"allowImportingTsExtensions": true
+
+
 ### 3.1 - Install TailwindCSS in the SvelteKit app
 
 Reference: https://tailwindcss.com/docs/guides/sveltekit
 
-```bash
-# main packages for TailwindCSS
-pnpm add tailwindcss postcss autoprefixer --save-dev
+note: with the new `sv` command (svelte 5) this manual work would be automated (at least some of it).
 
-# other useful plugins that we use (tailwindUI, and others)
-pnpm add @tailwindcss/forms @tailwindcss/typography @tailwindcss/aspect-ratio tailwind-scrollbar tailwindcss-debug-screens daisyui --save-dev
+```bash
+# main packages for TailwindCSS (version 3, not 4!)
+
+pnpm add tailwindcss@3 --save-dev
+pnpm add postcss@8 --save-dev
+pnpm add autoprefixer@10 --save-dev
+
+# other useful plugins for tailwind  (tailwindUI, and others)
+ 
+pnpm add @tailwindcss/aspect-ratio@0.4 --save-dev
+pnpm add @tailwindcss/forms@0.5 --save-dev
+pnpm add @tailwindcss/typography@0.5 --save-dev
+pnpm add daisyui@4.12 --save-dev
+pnpm add tailwind-scrollbar@3.1 --save-dev
+pnpm add tailwindcss-debug-screens@2.2 --save-dev
+
+		
 
 # initialize the the tailwind.config.js and postcss.config.js configuration files 
 # note: `pnpx` is an alias for `pnpm dlx` (and `pnpm dlx` is equivalent to `npx`)
@@ -423,7 +488,7 @@ https://kit.svelte.dev/docs/adapter-node#environment-variables-origin-protocolhe
 
 
 
-## 4 - API
+## 4 - Fastify
 
 Reference: https://github.com/fastify/fastify-cli?tab=readme-ov-file#generate
 
@@ -435,93 +500,152 @@ cd packages/api
 # fastify-cli can be used without an explicit install using `pnpx`/`npx`
 # note: `pnpx` is an alias for `pnpm dlx` (and `pnpm dlx` is equivalent to `npx`)
 
+pnpx fastify-cli help
+pnpx fastify-cli version
+
 pnpx fastify-cli generate --help
-pnpx fastify-cli generate . --esm
+pnpx fastify-cli generate --esm --lang=typescript .
+
+
+# the "eject" command will create a "server.ts" file, so that 
+# we can run as a standalone executable (insted of using fastify-cli)
+
+cd src 
+pnpx fastify-cli eject --help
+pnpx fastify-cli eject --esm --lang=typescript
+
+# install, review and update dependencies, if necessary
+
+cd ..
 pnpm install
+pnpm list
 
-# run in dev mode (has watch mode and pino-pretty logging)
-pnpm run dev
-# node --run dev  # nodejs >= 22
+# @fastify/autoload must be >= 6.2.0, to have proper typescript support
+pnpm add @fastify/autoload@latest
 
-# run in production mode (doesnt not have watch mode and pino-pretty logging)
-pnpm run start
-# node --run start  # nodejs >= 22
+# typescript must be >= 5.8
+pnpm add typescript@latest
 
-# use the explicit path to the fastify cli; this will start the main plugin (which will load all the other plugins via `@fastify/autoload`)
-node_modules/.bin/fastify start --watch --port 4000 --options app.js
-
-# we can also start just one specific plugin:
-node_modules/.bin/fastify start --watch --port 4000 --options plugins/my-plugin.js
-
-# we can give option for the plugin (received in the second parameter of the plugin function)
-node_modules/.bin/fastify start --watch --port 4000 --options plugins/my-plugin.js -- --plugin-option=abc
-
-
-
+# we won't use ts-node; we'll use instead type stripping (built-in or ts-blank-space) 
+pnpm remove ts-node
+pnpm add ts-blank-space@latest
 ```
 
+### Adjustments to `tsconfig.json` to fit our workflow (type erasure):
 
+```json
+  "compilerOptions": {
+    [...]
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "erasableSyntaxOnly": true,
+  },
+```
+
+### Adjustments to `server.ts`:
+
+```js
+// we won't use dotenv; all env variables should be located in config/env.sh
+// import * as dotenv from "dotenv";
+// dotenv.config();
+
+(...)
+
+// all relative imports require explicit file extensions 
+app.register(import("./app.ts"));
+
+(...)
+
+// we have our own env variable for the API port
+app.listen({ port: parseInt(process.env.API_PORT || '500'))
+```
+
+### Adjustments to type imports:
+
+```js
+# since we are using "verbatimModuleSyntax", all type imports must have "type"
+import {type AutoloadPluginOptions} from '@fastify/autoload';
+```
+
+### Check types with the official compiler
+
+In practice we should not need to do this explicitely because the IDE should give us immediate 
+feedback about errors as type; but we should do it sometimes to because AI agents or IDE refactores
+might introduce some errors
+
+```
+./node_modules/.bin/tsc --noEmit
+```
+
+### Run directly, with compiling (using type stripping)
+
+For nodejs >= 22.6 we use the built-in type stripping:
+
+```
+node --experimental-strip-types src/server.ts
+```
+
+For nodejs < 22.6 we use `ts-blank-space` as loader:
+
+```
+# https://github.com/fastify/fastify-autoload#override-typescript-detection-using-an-environment-variable
+"If FASTIFY_AUTOLOAD_TYPESCRIPT is set to a truthy value, Autoload will load .ts files, 
+expecting that node has a TypeScript-capable loader."
+
+FASTIFY_AUTOLOAD_TYPESCRIPT=1 node --import ts-blank-space/register src/server.ts
+```
+
+NOTE: the built-in type stripping won't work for ".ts" files inside "node_modules"; so we  might 
+actually need to use `ts-blank-space` even for nodejs >= 22.6.
+
+### Build (not necessary because we use only typescript that can be erased)
+
+Build with the official compiler:
+
+```
+# this should fail because we are using 'allowImportingTsExtensions'
+rm -rf ./dist && ./node_modules/.bin/tsc
+```
+
+Build with `ts-blank-space` (TO BE DONE)
+
+```
+rm -rf ./dist && pnpm run build:blank-space
+```
+
+### Recreate the `script` configuration in `package.json`
+
+```
+  "scripts": {
+    "dev": "node --watch --experimental-strip-types src/server.ts",
+    "dev-node20": "FASTIFY_AUTOLOAD_TYPESCRIPT=1 node --watch --import ts-blank-space/register src/server.ts",
+    "start": "node --experimental-strip-types src/server.ts",
+    "start-node20": "FASTIFY_AUTOLOAD_TYPESCRIPT=1 node --import ts-blank-space/register src/server.ts",
+    "test-ORIGINAL": "...",
+  },
+```
 
 Create a plugin with `fastify-cli`:
 
-NOTE: the output will be too opinionated.
-
 ```bash
+NOTE: the output will be too opinionated, and doesn't seem to support the 
+"--esm --lang=typescript" options; but might be useful as a starting point;
+
 pnpx fastify-cli generate-plugin --help
-pnpx fastify-cli generate-plugin the-plugin
-
+pnpx fastify-cli generate-plugin src/plugins/the-plugin
 ```
 
+### https://github.com/fastify/demo/
 
 
-
-
- 
-
-
-
-
---------------------------------------------------------------------------
-
-
-
-# TO BE REVIEW: from here
-
-# setup the api server (hapi)
-
-```bash
-pnpm create @hapipal api  # equivalent to: npm init @hapipal api
-pnpm --filter="./api" install
-```
-
-install other dependencies
-```bash
-pnpm --filter="./api" add nodemon
-pnpm --filter="./api" --workspace add postgres-connection 
-```
-
-in the scripts section of `api/package.json`, add a new `dev` script:
-```bash
-...
-"scripts": {
-	"dev": "nodemon server",
-	"start": "node server",
-	...
-}
-```
-
-
-start in dev mode:
-```
-cd api
-pnpm run dev
-```
-or start directly from the workspace root directory / base directory:
-```
-pnpm --filter="./api" run dev
-```
-
-
-
-# other notes (to be reviewed)
-
+    "@fastify/cookie": "^11.0.1",
+    "@fastify/cors": "^11.0.0",
+    "@fastify/env": "^5.0.1",
+    "@fastify/helmet": "^13.0.0",
+    "@fastify/multipart": "^9.0.1",
+    "@fastify/rate-limit": "^10.0.1",
+    "@fastify/sensible": "^6.0.1",
+    "@fastify/session": "^11.0.1",
+    "@fastify/static": "^8.0.2",
+    "@fastify/swagger": "^9.0.0",
+    "@fastify/swagger-ui": "^5.0.1",
