@@ -11,38 +11,38 @@ sudo emacs /etc/caddy/Caddyfile
 # we should explicitely give the values for the import directive in the global Caddyfile
 # (/etc/caddy/Caddyfile), that is, they must be hardcoded in that file; 
 # however those values should always be in sync with the respective env.sh file
-# for the project (which is $PROJECT_HOME_DIR/config/env.sh)  
+# for the project (which is $PROJECT_ROOT_DIR/config/env.sh)  
 
 # address of the site block: the-domain.local <-> $PROJECT_HOSTNAME 
 the-domain.local {
 
-    # args[0] <-> $PROJECT_HOME_DIR ("/path/to/project-home-dir")
+    # args[0] <-> $PROJECT_ROOT_DIR ("/path/to/project-root-dir")
     # args[1] <-> $WEBAPP_PORT ("5000")
     # args[2] <-> $API_PORT ("5001")
 
     # v2.8 - import with arguments
-    #import "/path/to/project-home-dir/config/caddy/Caddyfile-main" "/path/to/project-home-dir" "5000" "5001"
+    #import "/path/to/project-root-dir/config/caddy/Caddyfile-main" "/path/to/project-root-dir" "5000" "5001"
     
     # v2.9 - import with a block (https://github.com/caddyserver/caddy/pull/6130)
-    import "/path/to/project-home-dir/config/caddy/Caddyfile-main" {
-		PROJECT_HOME_DIR "/path/to/project-home-dir"
+    import "/path/to/project-root-dir/config/caddy/Caddyfile-main" {
+		PROJECT_ROOT_DIR "/path/to/project-root-dir"
 		WEBAPP_PORT 5000
 		API_PORT 5001
     }
-    
+    >
     # the lines below are relative to 2.8
     
     # args[0] <-> $PROJECT_HOSTNAME ("the-domain.local")
-    # import "/path/to/project-home-dir/config/caddy/Caddyfile-log" "the-domain.local"
+    # import "/path/to/project-root-dir/config/caddy/Caddyfile-log" "the-domain.local"
     
-    # args[0] <-> $PROJECT_HOME_DIR ("/path/to/project-home-dir")
-    # import "/path/to/project-home-dir/config/caddy/Caddyfile-dev" "/path/to/project-home-dir"
+    # args[0] <-> $PROJECT_ROOT_DIR ("/path/to/project-root-dir")
+    # import "/path/to/project-root-dir/config/caddy/Caddyfile-dev" "/path/to/project-root-dir"
     
     # args[0] <-> $WEBAPP_PORT ("5000")
-    # import "/path/to/project-home-dir/config/caddy/Caddyfile-vite" "5000"
+    # import "/path/to/project-root-dir/config/caddy/Caddyfile-vite" "5000"
     
-    # args[0] <-> $PROJECT_HOME_DIR ("/path/to/project-home-dir")
-    # import "/path/to/project-home-dir/config/caddy/Caddyfile-static-webapp" "/path/to/project-home-dir"
+    # args[0] <-> $PROJECT_ROOT_DIR ("/path/to/project-root-dir")
+    # import "/path/to/project-root-dir/config/caddy/Caddyfile-static-webapp" "/path/to/project-root-dir"
 }
 ```
 

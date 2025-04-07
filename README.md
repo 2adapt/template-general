@@ -4,7 +4,7 @@ A template to quickstart new projects at 2adapt.
 
 # Assumptions about the server
 
-- Ubuntu >= 22.04 (or some close cousin) 
+- Ubuntu >= 24.04 (or some close cousin) 
 - DNS records are configured correctly for the associated domain (an "A record")
 - The following stuff should be installed in the server (via `apt` or some standalone installer):
 	- Nix: https://github.com/DeterminateSystems/nix-installer
@@ -22,44 +22,40 @@ A template to quickstart new projects at 2adapt.
 
 # Initial configuration:
 
-## 0 - create the application user and fetch the repo 
+## Create the application user and fetch the repo 
 
 ```bash
-# 1 - create a (regular) user for the application; add to the "2adapt" group;
+# create a (regular) user for the application; add to the "2adapt" group;
 
-APP_USER="app_name"
+APP_USER="app_user"
 sudo adduser ${APP_USER}
 sudo usermod --append --groups 2adapt ${APP_USER}
+
+# it might be necessary to logout/login to see the updated list of groups with the `groups` command
 groups ${APP_USER}
 
-# note: if we do a usermod for our own user, it's necessary to logout/login
-# to see the effect of the new group in the "groups" command; 
-# or in alternative, re-login with ssh in the localhost
-
-# 2 - now login with the new user, we should now be able to create stuff; 
-
+# login with the new user; verify that app_user is able to create stuff in /opt/2adapt 
 mkdir /opt/2adapt/temp
 ls -l /opt/2adapt
 rmdir /opt/2adapt/temp
 
-# 3 - manually clone the git repo; this assumes that the ssh keys are already set up
-# for this user; 
-
+#  manually clone the git repo; we assume that the ssh keys are already set up for this user
 cd /opt/2adapt
-git clone git@github.com:2adapt/app_name.git
+git clone git@github.com:2adapt/projectname.git
 ```
 
-## 1 - set the necessary env variables and enter the nix shell: 
+## Set the necessary env variables and enter the nix shell: 
+
 ```bash
 cp config/env.sh.template config/env.sh
 emacs config/env.sh
 nix-shell
 ```
 
-## 2 - create the database for the project:
+## Create the database for the project:
 
 ```bash
-export PGUSER_FOR_PROJECT="app_name";
+export PGUSER_FOR_PROJECT="app_user";
 export PGDATABASE_FOR_PROJECT="$PGUSER_FOR_PROJECT";
 
 # 2.1 - create a database user: normal user or super user:
@@ -77,7 +73,15 @@ sudo --user postgres \
 createdb --owner=${PGUSER_FOR_PROJECT} --echo ${PGDATABASE_FOR_PROJECT}
 
 # if necessary, manually install extensions that must be installed by a database superuser:
-# postgis; postgis_raster; postgis_topology; postgis_sfcgal; postgis_topology; dblink; file_fdw; postgres_fdw; pg_stat_statements;
+# postgis;
+# postgis_raster;
+# postgis_topology;
+# postgis_sfcgal;
+# postgis_topology;
+# dblink;
+# file_fdw;
+# postgres_fdw;
+# pg_stat_statements;
 
 # example: this will also install "postgis", because of "cascade"
 sudo --user postgres \
@@ -101,16 +105,17 @@ psql --command="insert into test values (2, 'bbb')";
 ```
 
 
-## 4 - enter the nix dev shell and install dependencies from npm (with pnpm):
+## Start the nix shell and install dependencies from npm (with pnpm):
 
 ```bash
-# 3a - classic nix cli...
-nix-shell  
-# 3b - or modern nix cli
+# classic nix shell...
+nix-shell
+  
+# modern nix shell
 nix develop  
 
-# install the dependencies with pnpm; make sure that $PWD is at the $PROJECT_HOME_DIR;  
-if [ $PWD == $PROJECT_HOME_DIR ]; then echo "ok!"; fi
+# install the dependencies with pnpm; make sure that $PWD is at the $PROJECT_ROOT_DIR;  
+if [ $PWD == $PROJECT_ROOT_DIR ]; then echo "ok!"; fi
 
 # if we are in production: after pnpm has finished, make sure that `pnpm-lock.yaml` 
 # was not modified (it shouldn't if we have `CI="false"` in `config/env.sh`)
@@ -119,63 +124,58 @@ pnpm install
 
 ```
 
-## 5 - verify that the SvelteKit webapp can be built and started:
+## Verify that the SvelteKit webapp can be built and started:
 
 ```bash
 cd packages/webapp
-
-# 4a - check dev mode
-pnpm run dev # or "node --run dev"
-
-
-# 4b - prod mode
-pnpm run build # or "node --run build"
- 
+pnpm run build
 node build/index.js
 
-# at this point we should have the webapp working on http://localhost:${WEBAPP_PORT}
+# at this point we should have a node server for the the webapp available at http://localhost:${WEBAPP_PORT}
 ```
 
-## 5 - configure DNS and import the project's Caddyfiles in the global Caddyfile (see details in section 1.3 and config/caddy/README.md)
+## Configure DNS and import the project's Caddyfiles in the global Caddyfile
 
 ```bash
 sudo emacs /etc/caddy/Caddyfile
-# edit the global caddyfile
+# see details in section 1.3 and config/caddy/README.md
+
 sudo systemctl restart caddy
 
-# at this point we should have the webapp working on https://${PROJECT_HOSTNAME}
+# at this point we should have the webapp available at https://${PROJECT_HOSTNAME}
+curl --insecure https://${PROJECT_HOSTNAME}
 ```
 
 
-## 6 - verify that the api server can be started:
+## Verify that the api server can be started:
+
 ```bash
 cd packages/api
-node src/server.js  # TODO: add this as a "run" command in package.json
+pnpm run start
 ```
 
-## 7 - create the systemd service 
+## Configure the systemd services 
 
-Details here: `config/systemd-units/readme.md`
-
-
+Details here: `config/systemd/README.md`
 
 
-# Steps for the reconstruction of the template
+# Steps for the reconstruction of the template - How did we arrive here?
 
 ## 1 - Create the initial monorepo structure, to be managed by `pnpm` and `nix`:
 
-### 1.1 - Basic configuration files
+### Basic configuration files at the project root dir
 
 ```bash
-# verify that the working directory is the workspace root directory/project base dir
+# "A workspace must have a pnpm-workspace.yaml file in its root."
+# https://pnpm.io/workspaces
 pwd
 
-touch .gitignore
 touch pnpm-workspace.yaml
 touch .npmrc
+touch .gitignore
 ```
 
-### 1.2 - nix files
+### nix files: `config/nix`
 
 ```bash
 mkdir -p config/nix
@@ -183,7 +183,7 @@ mkdir -p config/nix
 touch config/nix/flake.nix
 touch config/nix/shell.nix
 
-# the env variables in this file will be loaded abd available in the nix shell (below)
+# the env variables in this file will be loaded when the nix shell starts (below)
 touch config/env.sh.template
 ```
 
@@ -199,16 +199,20 @@ git add flake.nix
 git add ./config/nix/flake.nix 
 
 # we can now enter the devshell
-nix develop # using the new nix cli and flakes
 nix-shell # or using the classic nix cli
+nix develop # using the new nix cli and flakes
 ```
 
-## 1.3 - caddy configuration
+### caddy files: `config/caddy`
 
 ```bash
 mkdir -p config/caddy
 
 touch config/caddy/Caddyfile-main
+touch config/caddy/Caddyfile-dev
+touch config/caddy/Caddyfile-log
+touch config/caddy/Caddyfile-vite
+touch config/caddy/Caddyfile-static-webapp
 ```
 
 For local development: update the `/etc/hosts` to have a local domain:
@@ -220,10 +224,9 @@ sudo emacs /etc/hosts
 Append a line like this:
 
 ```
+...
 127.0.0.1 the-domain.local
 ```
-
-NOTE: in some cases the "hot reload" in SvelteKit doesn't seem to work well with these local domains.
 
 The global Caddyfile should import the project Caddyfile:
 
@@ -232,20 +235,21 @@ sudo emacs /etc/caddy/Caddyfile
 ```
 
 ```
-
 # add a new site block
 
 the-domain.local {
 
 	# args[0] = WEBAPP_PORT = 5000
 	# args[1] = API_PORT = 5001
-	# args[2] = PROJECT_HOME_DIR = "/path/to/project-home-dir"
-
-	import /path/to/project-home-dir/config/caddy/Caddyfile-main 5000 5001 "/path/to/project-home-dir"
-	import /path/to/project-home-dir/config/caddy/Caddyfile-log "the-domain.local"
-	import /path/to/project-home-dir/config/caddy/Caddyfile-dev "/path/to/project-home-dir"
-	import /path/to/project-home-dir/config/caddy/Caddyfile-vite 5000
-	# import /path/to/project-home-dir/config/caddy/Caddyfile-prod "/path/to/project-home-dir"
+	# args[2] = PROJECT_ROOT_DIR = "/path/to/project-root-dir"
+	import /path/to/project-root-dir/config/caddy/Caddyfile-main 5000 5001 "/path/to/project-root-dir"
+	
+	# args[0] = PROJECT_HOSTNAME = "the-domain.local"
+	# import /path/to/project-root-dir/config/caddy/Caddyfile-log "the-domain.local"
+	
+	# import /path/to/project-root-dir/config/caddy/Caddyfile-dev "/path/to/project-root-dir"
+	# import /path/to/project-root-dir/config/caddy/Caddyfile-vite 5000
+	# import /path/to/project-root-dir/config/caddy/Caddyfile-prod "/path/to/project-root-dir"
 }
 
 ```
@@ -277,18 +281,35 @@ sudo usermod --append --groups ${DIRECTORY_GROUP} caddy
 getent group ${DIRECTORY_GROUP}
 ```
 
-
 We should now be able to load the webapp using `https://the-domain.local/caddy-debug/hello` (see step 3)
 
+NOTE: in some cases the "hot reload" in SvelteKit doesn't seem to work well with these local domains.
 
+### systemd services files: `config/systemd`
 
-## 2 - Monorepo management with `pnpm`
+```bash
+mkdir -p config/systemd
 
-### 2.1 - Create a workspace package
+touch config/systemd/projectname-webapp.service
+touch config/systemd/projectname-restart.sh
+touch config/systemd/projectname-status.sh
+touch config/systemd/projectname-stop.sh
+```
+
+Add the command to sudoers.
+
+sudo visudo
+projectuser ALL=(root) NOPASSWD: /bin/ls -l /root
+
+/etc/sudoers.d/
+
+## 2 - Basic monorepo management with `pnpm`
+
+### Create a workspace package
 
 Reference: https://pnpm.io/workspaces
 
-A directory in `./packages` is a "workspace package".
+A directory in `$PROJECT_ROOT_DIR/packages` is a "workspace package".
 
 ```bash
 mkdir -p packages/dummy-1
@@ -300,12 +321,12 @@ pnpm add underscore
 
 # observe the effect on package.json and in the structure of the monorepo
 cat ./package.json
+ls -la ./node_modules
 
-# created or updated by pnpm
 cat ../../pnpm-lock.yaml 
 ls -la ../../node_modules
 
-# return to the workspace root/project base dir
+# return to the workspace root dir
 cd ../..
 ```
 
@@ -324,7 +345,7 @@ pnpm add <some-pkg>
 
 Otherwise we end up with a `package.json` in the workspace base dir, which we don't want.
 
-### 2.2 - Using an existing local workspace package as a dependency
+### Use an existing local workspace package as a dependency
 
 A package in the workspace can also be used as a dependency:
 
@@ -342,6 +363,29 @@ ls -l node_modules/
 cat ../../pnpm-lock.yaml | grep --context=9 dummy-2
 ```
 
+### Use `pnpx`
+
+- `pnpx` is an alias for `pnpm dlx`: https://pnpm.io/cli/dlx
+- `pnpm dlx` is equivalent to `npx`: https://pnpm.io/feature-comparison
+- so `pnpx` is equivalent to `npx`
+
+These commands are equivalent:
+
+```shell
+pnpx create-something@1.2.3
+pnpm dlx create-something@1.2.3
+
+# for the "create-*" packages, this is also also equivalent:
+pnpm create something@1.2.3
+```
+
+A concrete example with `pnpx`:
+
+```shell
+# https://github.com/http-party/http-server
+pnpx http-server --port 5000 --cors
+```
+
 
 ## 3 - SvelteKit
 
@@ -351,65 +395,108 @@ Reference: https://kit.svelte.dev/docs/creating-a-project
 mkdir -p packages/webapp
 cd packages/webapp
 
-# note: `pnpx` is an alias for `pnpm dlx` (and `pnpm dlx` is equivalent to `npx`)
-# choose "skeleton project", "jsdoc", "eslint" and "prettier"
+# OPTION 1 - SvelteKit with svelte@4: use the `create-svelte` package
+# https://github.com/sveltejs/kit/tree/main/packages/create-svelte
 
-# NOTE create-svelte is now obsolete; it was replaced by the new "sv" CLI command:
+# NOTE: `create-svelte` is obsolete since svelte@5 was released; it was replaced by `sv` - "the Svelte CLI":
 # https://svelte.dev/blog/sv-the-svelte-cli
+# https://github.com/sveltejs/cli
 
-# pnpx create-svelte@6
-
-# equivalent command: pnpm dlx create-svelte@6
-# equivalent command: pnpm create svelte@6
-
-pnpx sv help
-
-# choose these options: eslint; tailwindcss; sveltekit-adapter
-pnpx sv create --no-install
+# create a new project; choose these options: demo app; eslint;
+pnpx create-svelte@6
+pnpm add @poppanator/sveltekit-svg@4 --save-dev
 pnpm install
 pnpm run dev
 
-# if necessary, add extra packages
-pnpm add @sveltejs/adapter-node@5.2 --save-dev
-pnpm add @poppanator/sveltekit-svg --save-dev
+# this should create the project with svelte@4.2.19 and @sveltejs/kit@latest
 
-# run in dev mode
+# OPTION 2 - SvelteKit with svelte@5: use the "sv" cli
+# https://github.com/sveltejs/cli
+
+pnpx sv help
+
+# create a new project; choose these options: demo template; eslint; tailwindcss; sveltekit-adapter (node adapter) 
+pnpx sv create --no-install
+pnpm add @poppanator/sveltekit-svg --save-dev
+pnpm install
 pnpm run dev
-# node --run dev  # nodejs >= 22
 ```
 
-This template has adjustments to (or adds) these files:
+### Adjustments to the original demo app
 
-- `vite.config.js`
-- `svelte.config.js`
-- `src/static` (all static assets should be placed instead in `src/static/static-webapp`)
+We make some adjustments in the files below. To see the original contents create a new project.
 
+#### `vite.config.js`
 
+- create an empty `config` object and add properties one by one 
+- add `config.server` and `config.build`
+- add a vite plugin to import svg files directly
 
+#### `svelte.config.js`
 
-eslint.config.js
+...
 
+#### `src/app.html`:
+
+- add Inter font
+- disable preload-data
+
+#### `src/error.html`:
+
+- custom fallback error page
+- https://svelte.dev/docs/kit/project-structure#Project-files
+- https://svelte.dev/docs/kit/routing#error
+
+#### `src/app.css`:
+
+- add the `.scrollbar-custom` (?)
+
+#### `src/static`: 
+
+All static assets should be placed instead in `src/static/static-webapp`
+
+#### `routes/test/*`: new routes to test features from sveltekit that are not in the demo
+
+#### `eslint.config.js`:
+
+```js
+export default ts.config(
+	...
 	{
 		rules: {
+			...
+			// add these
 			"prefer-const": "off",
 			"@typescript-eslint/no-unused-vars": "off"
 		}
 	}
+```
 
+### `tsconfig.json`:
 
-
-tsconfig.json
-
-
-"checkJs": false,
-"allowImportingTsExtensions": true
+```json
+{
+	"compilerOptions": {
+		...
+		// set to false?
+		"checkJs": false
+		...
+		// add these
+		"allowImportingTsExtensions": true,
+		"erasableSyntaxOnly": true,
+	}
+}
+```
 
 
 ### 3.1 - Install TailwindCSS in the SvelteKit app
 
-Reference: https://tailwindcss.com/docs/guides/sveltekit
+NOTE: this is necessary only if we used `create-svelte` / svelte@4. The `sv` cli will use a new version of tailwindcss
+which doesn't need a configuration file
+- https://tailwindcss.com/blog/tailwindcss-v4#first-party-vite-plugin
+- https://tailwindcss.com/blog/tailwindcss-v4#css-first-configuration
 
-note: with the new `sv` command (svelte 5) this manual work would be automated (at least some of it).
+Reference: https://tailwindcss.com/docs/guides/sveltekit
 
 ```bash
 # main packages for TailwindCSS (version 3, not 4!)
@@ -430,7 +517,6 @@ pnpm add tailwindcss-debug-screens@2.2 --save-dev
 		
 
 # initialize the the tailwind.config.js and postcss.config.js configuration files 
-# note: `pnpx` is an alias for `pnpm dlx` (and `pnpm dlx` is equivalent to `npx`)
 pnpx tailwindcss init --esm --postcss
 ```
 
@@ -490,15 +576,12 @@ https://kit.svelte.dev/docs/adapter-node#environment-variables-origin-protocolhe
 
 ## 4 - Fastify
 
-Reference: https://github.com/fastify/fastify-cli?tab=readme-ov-file#generate
+Reference: https://github.com/fastify/fastify-cli#generate
 
 ```bash
 
 mkdir -p packages/api
 cd packages/api
-
-# fastify-cli can be used without an explicit install using `pnpx`/`npx`
-# note: `pnpx` is an alias for `pnpm dlx` (and `pnpm dlx` is equivalent to `npx`)
 
 pnpx fastify-cli help
 pnpx fastify-cli version
@@ -506,9 +589,8 @@ pnpx fastify-cli version
 pnpx fastify-cli generate --help
 pnpx fastify-cli generate --esm --lang=typescript .
 
-
-# the "eject" command will create a "server.ts" file, so that 
-# we can run as a standalone executable (insted of using fastify-cli)
+# the "eject" command will create a "server.ts" file in the CWD; we can then run directly as a standalone server 
+# (insted of using fastify-cli)  
 
 cd src 
 pnpx fastify-cli eject --help
@@ -574,7 +656,11 @@ feedback about errors as type; but we should do it sometimes to because AI agent
 might introduce some errors
 
 ```
+# run rsc directly
 ./node_modules/.bin/tsc --noEmit
+
+# or via `pnpx exec`
+pnpm exec tsc --noEmit
 ```
 
 ### Run directly, with compiling (using type stripping)
@@ -589,21 +675,22 @@ For nodejs < 22.6 we use `ts-blank-space` as loader:
 
 ```
 # https://github.com/fastify/fastify-autoload#override-typescript-detection-using-an-environment-variable
-"If FASTIFY_AUTOLOAD_TYPESCRIPT is set to a truthy value, Autoload will load .ts files, 
-expecting that node has a TypeScript-capable loader."
+"If FASTIFY_AUTOLOAD_TYPESCRIPT is truthy, Autoload will load .ts files, expecting that node has a ts-capable loader."
 
 FASTIFY_AUTOLOAD_TYPESCRIPT=1 node --import ts-blank-space/register src/server.ts
 ```
 
-NOTE: the built-in type stripping won't work for ".ts" files inside "node_modules"; so we  might 
-actually need to use `ts-blank-space` even for nodejs >= 22.6.
+NOTE: the built-in type stripping won't work for `.ts` files inside `node_modules`; so we  might 
+actually prefer to use `ts-blank-space`, even for nodejs >= 22.6.
 
-### Build (not necessary because we use only typescript that can be erased)
+### Build
 
-Build with the official compiler:
+Since we are using only typescript that can be erased, the build step is actually not necessary. We can start node directly and all typescript will be removed on the fly. 
+
+Build with `tsc`:
 
 ```
-# this should fail because we are using 'allowImportingTsExtensions'
+# this should fail because we are using `allowImportingTsExtensions: true`; set to false for the build;
 rm -rf ./dist && ./node_modules/.bin/tsc
 ```
 

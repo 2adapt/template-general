@@ -19,8 +19,8 @@ Reload and activate the `projectname-webapp` service:
 
 ```bash
 
-# make sure that $PWD is $PROJECT_HOME_DIR
-if [ $PWD = $PROJECT_HOME_DIR ]; then echo "ok!"; fi
+# make sure that $PWD is $PROJECT_ROOT_DIR
+if [ $PWD = $PROJECT_ROOT_DIR ]; then echo "ok!"; fi
 
 
 # verify that the service files exist and that the contents are correct
