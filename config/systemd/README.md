@@ -110,14 +110,14 @@ Copy-paste:
 ```shell
 #!/bin/sh
 
-sudo systemctl status "projectname-webapp"
+systemctl status "projectname-webapp"
 ```
 
 We can now see easily the status of the `projectname-webapp` service using the shell script in the project. It might be a convenient wrapper if the 
 name of the service changes;
 
 ```bash
-sudo config/systemd/projectname-webapp-status.sh
+sudo ./config/systemd/projectname-webapp-status.sh
 ```
 
 If this wrapper script makes sense we can repeat for other systemd subcommands: `systemctl restart`, `systemctl stop`, etc.
@@ -138,9 +138,9 @@ Copy-paste:
 ```shell
 #!/bin/sh
 
-sudo systemctl status "projectname-webapp"
-sudo systemctl status "projectname-api"
-sudo systemctl status "projectname-other"
+systemctl status "projectname-webapp"
+systemctl status "projectname-api"
+systemctl status "projectname-other"
 ```
 
 We can now easily see the status of all services:
