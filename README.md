@@ -391,27 +391,13 @@ pnpx http-server --port 5000 --cors
 
 Reference: https://kit.svelte.dev/docs/creating-a-project
 
+SvelteKit with svelte@5: use the "sv" cli
+https://github.com/sveltejs/cli
+https://svelte.dev/blog/sv-the-svelte-cli
+
 ```bash
 mkdir -p packages/webapp
 cd packages/webapp
-
-# OPTION 1 - SvelteKit with svelte@4: use the `create-svelte` package
-# https://github.com/sveltejs/kit/tree/main/packages/create-svelte
-
-# NOTE: `create-svelte` is obsolete since svelte@5 was released; it was replaced by `sv` - "the Svelte CLI":
-# https://svelte.dev/blog/sv-the-svelte-cli
-# https://github.com/sveltejs/cli
-
-# create a new project; choose these options: demo app; eslint;
-pnpx create-svelte@6
-pnpm add @poppanator/sveltekit-svg@4 --save-dev
-pnpm install
-pnpm run dev
-
-# this should create the project with svelte@4.2.19 and @sveltejs/kit@latest
-
-# OPTION 2 - SvelteKit with svelte@5: use the "sv" cli
-# https://github.com/sveltejs/cli
 
 pnpx sv help
 
@@ -419,6 +405,23 @@ pnpx sv help
 pnpx sv create --no-install
 pnpm add @poppanator/sveltekit-svg --save-dev
 pnpm install
+pnpm run dev
+```
+
+SvelteKit with svelte@4: use the `create-svelte` package
+https://github.com/sveltejs/kit/tree/main/packages/create-svelte
+
+```bash
+mkdir -p packages/webapp-svelte4
+cd packages/webapp-svelte4
+
+# create a new project; choose these options: demo app; eslint;
+pnpx create-svelte@6 # v6 is latest version that works
+pnpm add @sveltejs/adapter-node
+pnpm add @poppanator/sveltekit-svg@4 --save-dev
+pnpm install
+
+# we should have svelte@4.2.19 and @sveltejs/kit@latest
 pnpm run dev
 ```
 
@@ -510,14 +513,13 @@ pnpm add autoprefixer@10 --save-dev
 pnpm add @tailwindcss/aspect-ratio@0.4 --save-dev
 pnpm add @tailwindcss/forms@0.5 --save-dev
 pnpm add @tailwindcss/typography@0.5 --save-dev
-pnpm add daisyui@4.12 --save-dev
 pnpm add tailwind-scrollbar@3.1 --save-dev
 pnpm add tailwindcss-debug-screens@2.2 --save-dev
-
+pnpm add daisyui@4.12 --save-dev
 		
 
 # initialize the the tailwind.config.js and postcss.config.js configuration files 
-pnpx tailwindcss init --esm --postcss
+pnpx tailwindcss@3 init --esm --postcss
 ```
 
 This template has adjustments to (or adds) these files:

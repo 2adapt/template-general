@@ -15,12 +15,15 @@ pkgs.mkShell {
 
 	packages = [
 		pkgs.nodejs_22
-		pkgs.corepack_22 # provides pnpm, etc
+		#pkgs.corepack_22 # provides pnpm, etc
+		#pkgs.pnpm
+
 		pkgs.bat
 		pkgs.curl
 		pkgs.zstd
 		pkgs.brotli
 		pkgs.gzip
+		pkgs.zip
 		pkgs.pgformatter
 		pkgs.shfmt
 		# add other packages here

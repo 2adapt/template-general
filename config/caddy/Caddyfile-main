@@ -3,7 +3,7 @@
 #vars {
 #	WEBAPP_PORT {args[0]}
 #	API_PORT {args[1]}
-#	STATIC_PUBLIC_DIR {args[2]}
+#	STORAGE_DIR {args[2]}
 #}
 
 # v2.9 - import with a block (https://github.com/caddyserver/caddy/pull/6130)
@@ -67,7 +67,7 @@ handle /static-public/* {
 	# should always be paired with a respective strip_prefix
 
 	file_server {
-		root {vars.STATIC_PUBLIC_DIR}
+		root {vars.STORAGE_DIR}
 		browse
 		precompressed br zstd gzip
 	}
