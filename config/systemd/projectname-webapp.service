@@ -20,12 +20,13 @@ StartLimitBurst=5
 # https://www.freedesktop.org/software/systemd/man/systemd.resource-control.html
 
 Type=simple
-User=some_dude
+User=the_non_admin_app_user
 WorkingDirectory=/opt/2adapt/projectname
 ExecStart=/nix/var/nix/profiles/default/bin/nix-shell --run "node packages/webapp/build/index.js"
 #ExecStop=...
 Restart=on-failure
-RestartSec=3s
+RestartSec=1
+TimeoutStopSec=5
 
 # if restarted is used, will try 3 times during a period of 30 seconds; if the process is not running after that
 # period, it enters the 'failed' state; for systemd v230 the following 2 options have been renamed and moved to
@@ -41,6 +42,7 @@ IOAccounting=true
 IPAccounting=true
 
 MemoryMax=1000M
+CPUQuota=50%
 LimitNOFILE=8192
 
 # other options to consider:

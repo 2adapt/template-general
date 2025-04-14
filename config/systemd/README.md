@@ -5,8 +5,8 @@ Reference: ...
 Create the configuration file:
 
 ```bash
-mkdir -p config/systemd
-emacs config/systemd/projectname-webapp.service
+mkdir -p ./config/systemd
+emacs ./config/systemd/projectname-webapp.service
 ```
 
 Copy-paste:
@@ -15,27 +15,28 @@ Copy-paste:
 # (check the contents of the existing file in this template)
 ```
 
-Reload and activate the `projectname-webapp` service:
+Reload and activate the `projectname-webapp` service. These must be done by a usersuper
 
 ```bash
 
-# make sure that $PWD is $PROJECT_ROOT_DIR
-if [ $PWD = $PROJECT_ROOT_DIR ]; then echo "ok!"; fi
+# make sure this path doesn't have a slash at the end
+export PROJECT_ROOT_DIR="/path/to/project-root-dir"
 
 
 # verify that the service files exist and that the contents are correct
-ls -l "${PWD}/config/systemd/projectname-webapp.service"
-cat "${PWD}/config/systemd/projectname-webapp.service"
+sudo ls -l "${PROJECT_ROOT_DIR}/config/systemd/projectname-webapp.service"
+sudo cat "${PROJECT_ROOT_DIR}/config/systemd/projectname-webapp.service"
 
 # verify that there is no file/symlink already in /etc/systemd/system;
 ls -l "/etc/systemd/system/projectname-webapp.service"
 
 # create the symlink in /etc/systemd/system;
 sudo ln --symbolic \
-"${PWD}/config/systemd/projectname-webapp.service" \
+"${PROJECT_ROOT_DIR}/config/systemd/projectname-webapp.service" \
 "/etc/systemd/system/projectname-webapp.service"
 
-ls -l "/etc/systemd/system/projectname-webapp.service"
+# the most recent file should be our symlink
+ls -ltra /etc/systemd/system
 cat "/etc/systemd/system/projectname-webapp.service"
 
 # reload the systemd manager configuration; this automatically create symlinks 
@@ -70,14 +71,14 @@ journalctl --unit "projectname-webapp.service" --lines 500
 ```
 
 
-### Updates to the service file
+### Updates to the service file (same file.service)
 
 ```shell
 # edit the file
-emacs "${PWD}/config/systemd/projectname-webapp.service"
+emacs "${PROJECT_ROOT_DIR}/config/systemd/projectname-webapp.service"
 
 # Validate
-sudo systemd-analyze verify /etc/systemd/system/app.service
+sudo systemd-analyze verify /etc/systemd/system/projectname-webapp.service
 
 # reload the systemd manager configuration and restart the service
 sudo systemctl daemon-reload
@@ -100,9 +101,9 @@ sudo systemctl daemon-reload
 Create a wrapper shell script for the `systemctl status` subcommand:
 
 ```bash
-touch config/systemd/projectname-webapp-status.sh
-chmod 755 config/systemd/projectname-webapp-status.sh
-emacs config/systemd/projectname-webapp-status.sh
+touch ./config/systemd/projectname-webapp-status.sh
+#chmod 750 ./config/systemd/projectname-webapp-status.sh
+emacs ./config/systemd/projectname-webapp-status.sh
 ```
 
 Copy-paste:
@@ -117,20 +118,21 @@ We can now see easily the status of the `projectname-webapp` service using the s
 name of the service changes;
 
 ```bash
+# this command must be added to the sudoers file; see below;
 sudo ./config/systemd/projectname-webapp-status.sh
 ```
 
-If this wrapper script makes sense we can repeat for other systemd subcommands: `systemctl restart`, `systemctl stop`, etc.
+Repeat "projectname-webapp-*" for other systemd subcommands: `restart`, `stop`, etc.
 
 
 ### Wrapper scripts for all services
 
-Similar to the above, but considering all services related to this project:
+Same as the above, but for all services related to this project:
 
 ```bash
-touch config/systemd/projectname-all-status.sh
-chmod 755 config/systemd/projectname-all-status.sh
-emacs config/systemd/projectname-all-status.sh
+touch ./config/systemd/projectname-allunits-status.sh
+#chmod 750 ./config/systemd/projectname-allunits-status.sh
+emacs ./config/systemd/projectname-allunits-status.sh
 ```
 
 Copy-paste:
@@ -146,9 +148,29 @@ systemctl status "projectname-other"
 We can now easily see the status of all services:
 
 ```bash
-sudo config/systemd/projectname-all-status.sh
+# this command must be added to the sudoers file; see below;
+sudo ./config/systemd/projectname-allunits-status.sh
 ```
+
+Repeat "projectname-allunits-*" for other systemd subcommands: `restart`, `stop`, etc.
 
 ### Repeat the service configuration for `projectname-api` (and other existing apps/services)
 
 ...
+
+### Update the sudoers file with the necessary commands:
+
+```shell
+sudo visudo
+```
+
+```
+# the full path must be given; but we can execute the shell wrapper script with a relative paths
+
+the_non_admin_app_user ALL=(root) NOPASSWD: /path/to/project-root-dir/config/systemd/projectname-webapp-restart.sh
+the_non_admin_app_user ALL=(root) NOPASSWD: /path/to/project-root-dir/config/systemd/projectname-webapp-status.sh
+the_non_admin_app_user ALL=(root) NOPASSWD: /path/to/project-root-dir/config/systemd/projectname-webapp-stop.sh
+the_non_admin_app_user ALL=(root) NOPASSWD: /path/to/project-root-dir/config/systemd/projectname-allunits-restart.sh
+the_non_admin_app_user ALL=(root) NOPASSWD: /path/to/project-root-dir/config/systemd/projectname-allunits-status.sh
+the_non_admin_app_user ALL=(root) NOPASSWD: /path/to/project-root-dir/config/systemd/projectname-allunits-stop.sh
+```
