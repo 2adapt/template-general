@@ -16,7 +16,7 @@ pkgs.mkShell {
 	packages = [
 		pkgs.nodejs_22
 		#pkgs.corepack_22 # provides pnpm, etc
-		#pkgs.pnpm
+		pkgs.pnpm
 
 		pkgs.bat
 		pkgs.curl

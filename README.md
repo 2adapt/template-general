@@ -127,7 +127,7 @@ pnpm install
 ## Verify that the SvelteKit webapp can be built and started:
 
 ```bash
-cd packages/webapp
+cd ${PROJECT_ROOT_DIR}/packages/webapp
 pnpm run build
 node build/index.js
 
@@ -150,7 +150,7 @@ curl --insecure https://${PROJECT_HOSTNAME}
 ## Verify that the api server can be started:
 
 ```bash
-cd packages/api
+cd ${PROJECT_ROOT_DIR}/packages/api
 pnpm run start
 ```
 
@@ -309,11 +309,11 @@ projectuser ALL=(root) NOPASSWD: /bin/ls -l /root
 
 Reference: https://pnpm.io/workspaces
 
-A directory in `$PROJECT_ROOT_DIR/packages` is a "workspace package".
+A sub-directory in `$PROJECT_ROOT_DIR/packages` is a "workspace package".
 
 ```bash
-mkdir -p packages/dummy-1
-cd packages/dummy-1
+mkdir -p ${PROJECT_ROOT_DIR}/packages/dummy-1
+cd ${PROJECT_ROOT_DIR}/packages/dummy-1
 
 # initialize the `dummy-1` workspace package (create a package.json) and install a module from npm:
 pnpm init
@@ -339,7 +339,7 @@ At this point:
 IMPORTANT: before installing a dependency for a workspace package (`pnpm add <some-pkg>`) we should always change the working directory so that we are in the directory of that workspace package; that is, we should do this:
 
 ```bash
-cd packages/dummy-1
+cd ${PROJECT_ROOT_DIR}/packages/dummy-1
 pnpm add <some-pkg>
 ```
 
@@ -350,11 +350,11 @@ Otherwise we end up with a `package.json` in the workspace base dir, which we do
 A package in the workspace can also be used as a dependency:
 
 ```bash
-mkdir -p packages/dummy-2
-cd packages/dummy-2
+mkdir -p ${PROJECT_ROOT_DIR}/packages/dummy-2
+cd ${PROJECT_ROOT_DIR}/packages/dummy-2
 pnpm init
 
-# assuming that packages/dummy-1 was created before, we can now use it as a dependency
+# assuming that the "dummy-1" local package was created before, we can now use it as a dependency
 pnpm add dummy-1 --workspace
 
 # observe the internal linking done by pnpm
@@ -391,20 +391,22 @@ pnpx http-server --port 5000 --cors
 
 Reference: https://kit.svelte.dev/docs/creating-a-project
 
+SvelteKit should be used with svelte@5, but we can still install the svelte@4.
+
 SvelteKit with svelte@5: use the "sv" cli
 https://github.com/sveltejs/cli
 https://svelte.dev/blog/sv-the-svelte-cli
 
 ```bash
-mkdir -p packages/webapp
-cd packages/webapp
+mkdir -p ${PROJECT_ROOT_DIR}/packages/webapp
+cd ${PROJECT_ROOT_DIR}/packages/webapp
 
 pnpx sv help
 
 # create a new project; choose these options: demo template; eslint; tailwindcss; sveltekit-adapter (node adapter) 
 pnpx sv create --no-install
-pnpm add @poppanator/sveltekit-svg --save-dev
 pnpm install
+pnpm add @poppanator/sveltekit-svg --save-dev
 pnpm run dev
 ```
 
@@ -412,14 +414,15 @@ SvelteKit with svelte@4: use the `create-svelte` package
 https://github.com/sveltejs/kit/tree/main/packages/create-svelte
 
 ```bash
-mkdir -p packages/webapp-svelte4
-cd packages/webapp-svelte4
+mkdir -p ${PROJECT_ROOT_DIR}/packages/webapp-svelte4
+cd ${PROJECT_ROOT_DIR}/packages/webapp-svelte4
 
 # create a new project; choose these options: demo app; eslint;
-pnpx create-svelte@6 # v6 is latest version that works
+pnpx create-svelte@6 # explicitely use v6 because it's the latest version that works
+pnpm install
 pnpm add @sveltejs/adapter-node
 pnpm add @poppanator/sveltekit-svg@4 --save-dev
-pnpm install
+
 
 # we should have svelte@4.2.19 and @sveltejs/kit@latest
 pnpm run dev
@@ -437,13 +440,25 @@ We make some adjustments in the files below. To see the original contents create
 
 #### `svelte.config.js`
 
-...
+- modified `config.kit.adapter` to use `adapter-node`
+- add `config.kit.addDir` to handle a custom static assets dir 
+  - it's necessary to create this subdir: `mkdir static/static-webapp` 
+- add `config.kit.typescript`
+- add `config.compilerOptions`
+- add `config.preprocess` (for tailwindcss)
+- add `config.onwarn`
+
+#### `src/static`:
+
+All static assets should be placed instead in `src/static/static-webapp`
 
 #### `src/app.html`:
 
-- add Inter font
-- disable preload-data
-
+- add the Inter font (reference: https://tailwindcss.com/plus/ui-blocks/documentation#add-the-inter-font-family)
+- disable the `data-sveltekit-preload-data` attribute
+- maybe add `height:100%` to `html` and `body`? (via `h-full` from tailwind)
+- maybe add `bg-gray-50` to `body`?
+ 
 #### `src/error.html`:
 
 - custom fallback error page
@@ -452,15 +467,19 @@ We make some adjustments in the files below. To see the original contents create
 
 #### `src/app.css`:
 
-- add the `.scrollbar-custom` (?)
+- add the 3 `@tailwind` directives
 
-#### `src/static`: 
+#### `src/routes/+layout.svelte`:
 
-All static assets should be placed instead in `src/static/static-webapp`
+- add `<span class="debug-screens"></span>` (tailwind breakpoints)
 
-#### `routes/test/*`: new routes to test features from sveltekit that are not in the demo
+#### `routes/test/*` 
+
+Add new routes to test features from sveltekit that are not in the demo.
 
 #### `eslint.config.js`:
+
+Disable some rules.
 
 ```js
 export default ts.config(
@@ -475,7 +494,9 @@ export default ts.config(
 	}
 ```
 
-### `tsconfig.json`:
+#### `tsconfig.json`:
+
+Upgrade for a ts-only experience, with erasable syntax only.
 
 ```json
 {
@@ -492,10 +513,10 @@ export default ts.config(
 ```
 
 
-### 3.1 - Install TailwindCSS in the SvelteKit app
+### Install and configure TailwindCSS@3 for the SvelteKit app
 
-NOTE: this is necessary only if we used `create-svelte` / svelte@4. The `sv` cli will use a new version of tailwindcss
-which doesn't need a configuration file
+NOTE: this is necessary only if we used `create-svelte` (that is, for svelte@4). The `sv` cli will use the new version of tailwindcss (v4)
+that doesn't need a configuration file
 - https://tailwindcss.com/blog/tailwindcss-v4#first-party-vite-plugin
 - https://tailwindcss.com/blog/tailwindcss-v4#css-first-configuration
 
@@ -515,28 +536,18 @@ pnpm add @tailwindcss/forms@0.5 --save-dev
 pnpm add @tailwindcss/typography@0.5 --save-dev
 pnpm add tailwind-scrollbar@3.1 --save-dev
 pnpm add tailwindcss-debug-screens@2.2 --save-dev
-pnpm add daisyui@4.12 --save-dev
-		
+
+# for daisyui@5 see https://daisyui.com/docs/v5 (requires tailwindcss@4)
+# pnpm add daisyui@4.12 --save-dev
 
 # initialize the the tailwind.config.js and postcss.config.js configuration files 
 pnpx tailwindcss@3 init --esm --postcss
 ```
 
-This template has adjustments to (or adds) these files:
-
-- `tailwind.config.js`
-- `src/app.css`
-- `src/routes/+layout.svelte`
-
-In `src/app.html` we might have to do a few more small adjustments:
-
-- add the Inter font: https://github.com/rsms/inter (details here: https://tailwindui.com/documentation#getting-set-up)
-- add `height:100%` to the `html` and `body` elements (via `h-full` from tailwind)
-- add `bg-gray-50` to the `body` element
-- remove/disable the `data-sveltekit-preload-data` attribute
+The `tailwind.config.js` file was customized with the plugins above and other stuff.
 
 
-### 3.2 - Verify that the build is working
+### Verify that the build is working
 
 Reference: https://kit.svelte.dev/docs/adapter-node
 
@@ -561,9 +572,9 @@ WEBAPP_PORT=9999 node build/index.js
 
 Other env variables that might be of interest: 
 
-- `HOST`
-- `ORIGIN` 
-- `BODY_SIZE_LIMIT`
+- `WEBAPP_HOST`
+- `WEBAPP_ORIGIN` 
+- `WEBAPP_BODY_SIZE_LIMIT`
 
 NOTE: 
 >"HTTP doesn't give SvelteKit a reliable way to know the URL that is currently being requested. If `adapter-node` can't correctly determine the URL of your deployment, you may experience this error when using form actions: "Cross-site POST form submissions are forbidden" 
@@ -582,8 +593,8 @@ Reference: https://github.com/fastify/fastify-cli#generate
 
 ```bash
 
-mkdir -p packages/api
-cd packages/api
+mkdir -p ${PROJECT_ROOT_DIR}/packages/api
+cd ${PROJECT_ROOT_DIR}/packages/api
 
 pnpx fastify-cli help
 pnpx fastify-cli version
