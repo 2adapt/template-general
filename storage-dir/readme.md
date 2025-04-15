@@ -1,0 +1,1 @@
+the storage dir should be located outside the repository
