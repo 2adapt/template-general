@@ -456,6 +456,7 @@ All static assets should be placed instead in `src/static/static-webapp`
 
 - add the Inter font (reference: https://tailwindcss.com/plus/ui-blocks/documentation#add-the-inter-font-family)
 - disable the `data-sveltekit-preload-data` attribute
+- make the `lang` attribute in `<html lang="en">` dynamic (to be set in the server hooks)
 - maybe add `height:100%` to `html` and `body`? (via `h-full` from tailwind)
 - maybe add `bg-gray-50` to `body`?
  
@@ -512,6 +513,18 @@ Upgrade for a ts-only experience, with erasable syntax only.
 }
 ```
 
+#### `package.json`
+
+Add the `format` command to `scripts` (via `dprint`, which should be installed globally: https://dprint.dev/install/)
+
+```json
+{
+	"scripts": {
+		...
+		"format": "dprint fmt \"src/**/*.{ts,js,json,svelte}\""
+	}
+}
+```
 
 ### Install and configure TailwindCSS@3 for the SvelteKit app
 
@@ -527,7 +540,9 @@ Reference: https://tailwindcss.com/docs/guides/sveltekit
 
 pnpm add tailwindcss@3 --save-dev
 pnpm add postcss@8 --save-dev
-pnpm add autoprefixer@10 --save-dev
+
+# we need the exact version for autoprefixer because of this bug (?) - https://github.com/twbs/bootstrap/issues/36259
+pnpm add autoprefixer@10.4.5 --save-dev
 
 # other useful plugins for tailwind  (tailwindUI, and others)
  
