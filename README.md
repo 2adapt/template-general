@@ -401,7 +401,8 @@ https://svelte.dev/blog/sv-the-svelte-cli
 mkdir -p ${PROJECT_ROOT_DIR}/packages/webapp
 cd ${PROJECT_ROOT_DIR}/packages/webapp
 
-pnpx sv help
+pnpx sv --help
+pnpx sv create --help
 
 # create a new project; choose these options: demo template; eslint; tailwindcss; sveltekit-adapter (node adapter) 
 pnpx sv create --no-install
