@@ -93,11 +93,7 @@ importers:
 
   packages/vite-plugin-write-sveltekit-route: {}
 
-  packages/webapp:
-    dependencies:
-      underscore:
-        specifier: 1.13.6
-        version: 1.13.6
+  packages/webapp: {}
 
   packages/webapp-svelte4:
     devDependencies:
