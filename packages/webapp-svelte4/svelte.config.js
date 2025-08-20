@@ -1,18 +1,18 @@
+// import adapter from '@sveltejs/adapter-auto';
 import adapter from '@sveltejs/adapter-node';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
+// reference for the top-level options: https://kit.svelte.dev/docs/configuration
+
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-	// reference for the top-level options: https://kit.svelte.dev/docs/configuration
-	compilerOptions: {
-		preserveComments: true,
-		preserveWhitespace: true,
-		enableSourcemap: false,
-	},
-	kit: {
-		// reference for the config.kit options: https://kit.svelte.dev/docs/configuration#adapter
-		// reference for adapter-node: https://kit.svelte.dev/docs/adapter-node
+	// Consult https://kit.svelte.dev/docs/integrations#preprocessors
+	// for more information about preprocessors
 
+	kit: {
+		// adapter-auto only supports some environments, see https://kit.svelte.dev/docs/adapter-auto for a list.
+		// If your environment is not supported, or you settled on a specific environment, switch out the adapter.
+		// See https://kit.svelte.dev/docs/adapters for more information about adapters.
 		adapter: adapter({
 			// svelte-kit will read these env variables: WEBAPP_PORT; WEBAPP_ORIGIN
 			out: 'build',
@@ -42,9 +42,7 @@ const config = {
 		// it would probably conflict with the "_app" subdirectory that is created dynamically by vite when we run "pnpm run build"
 
 		appDir: 'static-webapp/_app',
-		// csp: {},
-		// csrf: true
-		// embedded: false,
+
 		typescript: {
 			config: (config) => {
 				config.compilerOptions.sourceMap = false;
@@ -54,15 +52,13 @@ const config = {
 			},
 		},
 	},
-	// package: ...
+
 	preprocess: [
 		vitePreprocess(), // necessary for tailwindcss (enable processing <style> blocks as PostCSS)
 	],
-	// vitePlugin: ...
 
 	// https://github.com/sveltejs/vite-plugin-svelte/blob/main/docs/config.md#onwarn
 	onwarn: function (warning, defaultHandler) {
-
 		if (warning.message === 'A11y: <img> element should have an alt attribute') {
 			return;
 		}
@@ -72,22 +68,12 @@ const config = {
 
 		defaultHandler(warning);
 	},
+
+	compilerOptions: {
+		preserveComments: true,
+		preserveWhitespace: true,
+		enableSourcemap: false,
+	},
 };
 
 export default config;
-
-// original contents:
-
-// import adapter from '@sveltejs/adapter-auto';
-//
-// /** @type {import('@sveltejs/kit').Config} */
-// const config = {
-// 	kit: {
-// 		// adapter-auto only supports some environments, see https://kit.svelte.dev/docs/adapter-auto for a list.
-// 		// If your environment is not supported, or you settled on a specific environment, switch out the adapter.
-// 		// See https://kit.svelte.dev/docs/adapters for more information about adapters.
-// 		adapter: adapter()
-// 	}
-// };
-//
-// export default config;

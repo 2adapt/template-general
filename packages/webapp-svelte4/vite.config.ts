@@ -1,10 +1,11 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
+import type { UserConfig } from 'vite';
 
-let config = {};
+const config: UserConfig = {};
 
 config.plugins = [
-	sveltekit()
+	sveltekit(),
 ];
 
 config.server = {
@@ -15,13 +16,8 @@ config.server = {
 
 config.build = {
 	sourcemap: false,
-	minify: true
-}
-
-// config.base will be overridden by SvelteKit; see alternative here:
-// https://svelte.dev/docs/kit/configuration#paths
-// https://vite.dev/guide/build.html#public-base-path
-// config.base = '/foo/';
+	minify: false,
+};
 
 // extra vite plugin: load svg files (icons) as plain code, directly from ".svg" files
 // install: pnpm add @poppanator/sveltekit-svg --save-dev
@@ -78,14 +74,14 @@ config.plugins.push(svgImporter({
 						sortDefsChildren: false,
 						removeTitle: false,
 						removeDesc: false,
-					}
+					},
 				},
 			},
 			{
 				name: 'convertStyleToAttrs',
 				params: {
-					keepImportant: true
-				}
+					keepImportant: true,
+				},
 			},
 			// remove fill and stroke; we want to control those from a parent element, using stroke-none, stroke-current, etc;
 			// it's important to have this plugin after convertStyleToAttrs
@@ -98,11 +94,10 @@ config.plugins.push(svgImporter({
 						'svg:width',
 						'svg:height',
 					],
-				}
+				},
 			},
 		],
 	},
 }));
-/*
-*/
+
 export default defineConfig(config);

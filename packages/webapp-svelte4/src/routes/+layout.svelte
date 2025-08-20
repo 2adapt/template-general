@@ -3,19 +3,19 @@
 	import '../app.css';
 </script>
 
-<span class="debug-screens"></span>
-
 <div class="app">
 	<Header />
 
 	<main>
 		<slot />
 	</main>
-
 	<footer>
 		<p>visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to learn SvelteKit</p>
 	</footer>
 </div>
+
+<span class="debug-screens"></span>
+
 
 <style>
 	.app {

@@ -1,3 +1,7 @@
+NOTE: this readme is deprecated because adapter-node will automatically precompress assets: https://svelte.dev/docs/kit/adapter-node#Options-precompress
+
+ORIGINAL README:
+
 For these big static assets we pre-compute the respective "precompressed sidecar" assets. 
 
 In caddy this is enabled with the "precompressed" directive in the file_server directive: https://caddyserver.com/docs/caddyfile/directives/file_server.

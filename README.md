@@ -391,9 +391,9 @@ pnpx http-server --port 5000 --cors
 
 Reference: https://kit.svelte.dev/docs/creating-a-project
 
-SvelteKit should be used with svelte@5, but we can still install the svelte@4.
+SvelteKit should be used with svelte@5, but we can still use svelte@4.
 
-SvelteKit with svelte@5: use the "sv" cli
+SvelteKit with svelte@5: use the new cli: `sv`
 https://github.com/sveltejs/cli
 https://svelte.dev/blog/sv-the-svelte-cli
 
@@ -411,77 +411,108 @@ pnpm add @poppanator/sveltekit-svg --save-dev
 pnpm run dev
 ```
 
-SvelteKit with svelte@4: use the `create-svelte` package
-https://github.com/sveltejs/kit/tree/main/packages/create-svelte
+SvelteKit with svelte@4: use the old cli: `create-svelte`
+
+NOTE: as of sveltekit v2.28 the old cli was deleted from the monorepo.
+
+Old version of the kit docs (as of 2024/10, right before svelte5 was released):
+https://web.archive.org/web/20241004043518/https://kit.svelte.dev/docs/introduction
 
 ```bash
 mkdir -p ${PROJECT_ROOT_DIR}/packages/webapp-svelte4
 cd ${PROJECT_ROOT_DIR}/packages/webapp-svelte4
 
-# create a new project; choose these options: demo app; eslint;
+# create a new project; choose these options: demo app; check with typescript syntax; add eslint and prettier;
 pnpx create-svelte@6 # explicitely use v6 because it's the latest version that works
 pnpm install
-pnpm add @sveltejs/adapter-node
+pnpm add @sveltejs/adapter-node --save-dev
 pnpm add @poppanator/sveltekit-svg@4 --save-dev
 
 
-# we should have svelte@4.2.19 and @sveltejs/kit@latest
+# check that we have installed these versions (released around 2025/08)
+# svelte: 4.2.20
+# @sveltejs/kit: 2.27.1
+# @sveltejs/adapter-node: 5.2.12
+
+cat node_modules/svelte/package.json
+cat node_modules/@sveltejs/kit/package.json
+cat node_modules/@sveltejs/adapter-node/package.json
+
+# we can probably still update @sveltejs/kit and @sveltejs/adapter-node to a most recent version:
+
+pnpm install @sveltejs/kit@2.34
+pnpm install @sveltejs/adapter-node@5.3
+ 
 pnpm run dev
 ```
 
-### Adjustments to the original demo app
+### 3.1 - Install and configure TailwindCSS@3 for the SvelteKit app
+
+NOTE: this is necessary only if we used `create-svelte` (that is, for svelte@4). The `sv` cli will use the new version of tailwindcss (v4)
+that doesn't need a configuration file
+- https://tailwindcss.com/blog/tailwindcss-v4#first-party-vite-plugin
+- https://tailwindcss.com/blog/tailwindcss-v4#css-first-configuration
+
+Reference: https://tailwindcss.com/docs/guides/sveltekit
+
+```bash
+# main packages for TailwindCSS (version 3, not 4!)
+
+pnpm add tailwindcss@3 postcss@8 --save-dev
+
+# we need the exact version for autoprefixer because of this bug (?) - https://github.com/twbs/bootstrap/issues/36259
+pnpm add autoprefixer@10.4.5 --save-dev
+
+# other useful plugins for tailwind  (tailwindUI, and others)
+ 
+pnpm add @tailwindcss/aspect-ratio@0.4 --save-dev
+pnpm add @tailwindcss/forms@0.5 --save-dev
+pnpm add @tailwindcss/typography@0.5 --save-dev
+pnpm add tailwind-scrollbar@3.1 --save-dev
+pnpm add tailwindcss-debug-screens@2.2 --save-dev
+pnpm add daisyui@4.12 --save-dev
+# for daisyui@5 see https://daisyui.com/docs/v5 (requires tailwindcss@4)
+```
+
+```bash
+# initialize the the tailwind.config.ts and postcss.config.js configuration files 
+pnpx tailwindcss@3 init --esm --ts --postcss
+```
+
+The `tailwind.config.js` file in our template was customized with the plugins above and other stuff.
+
+In `src/app.css`: add the 3 `@tailwind` directives after the `@import` directives.
+
+
+### 3.2 - Adjustments to the original demo app
 
 We make some adjustments in the files below. To see the original contents create a new project.
 
-#### `vite.config.js`
+#### `vite.config.ts`
 
-- create an empty `config` object and add properties one by one 
-- add `config.server` and `config.build`
-- add a vite plugin to import svg files directly
+- create an empty `config` object: `const config: UserConfig = {};` 
+- add properties one by one `config.plugins`, `config.server`, `config.build`, etc
+- add the `@poppanator/sveltekit-svg` plugin (to import svg files directly; should be used with `{@html theSvgFile}`) 
+
 
 #### `svelte.config.js`
 
-- modified `config.kit.adapter` to use `adapter-node`
-- add `config.kit.addDir` to handle a custom static assets dir 
+- `config.kit.adapter`: use `@sveltejs/adapter-node` instead of `@sveltejs/adapter-auto`
+- `config.kit.appDir`:  set to 'static-webapp/_app' to handle a custom static assets dir 
   - it's necessary to create this subdir: `mkdir static/static-webapp` 
-- add `config.kit.typescript`
-- add `config.compilerOptions`
-- add `config.preprocess` (for tailwindcss)
-- add `config.onwarn`
+- `config.kit.typescript`: add some custom options
+- `config.compilerOptions`: add some custom options
+- `config.preprocess`: add `vitePreprocess()` (for tailwindcss)
+- `config.onwarn`: add some custom options
 
 #### `src/static`:
 
-All static assets should be placed instead in `src/static/static-webapp`
-
-#### `src/app.html`:
-
-- add the Inter font (reference: https://tailwindcss.com/plus/ui-blocks/documentation#add-the-inter-font-family)
-- disable the `data-sveltekit-preload-data` attribute
-- make the `lang` attribute in `<html lang="en">` dynamic (to be set in the server hooks)
-- maybe add `height:100%` to `html` and `body`? (via `h-full` from tailwind)
-- maybe add `bg-gray-50` to `body`?
- 
-#### `src/error.html`:
-
-- custom fallback error page
-- https://svelte.dev/docs/kit/project-structure#Project-files
-- https://svelte.dev/docs/kit/routing#error
-
-#### `src/app.css`:
-
-- add the 3 `@tailwind` directives
-
-#### `src/routes/+layout.svelte`:
-
-- add `<span class="debug-screens"></span>` (tailwind breakpoints)
-
-#### `routes/test/*` 
-
-Add new routes to test features from sveltekit that are not in the demo.
+All static assets should be placed instead in the `static/static-webapp` directory (because the `config.kit.appDir` 
+is set to `static-webapp/_app`)
 
 #### `eslint.config.js`:
 
-Disable some rules.
+Disable some rules (?)
 
 ```js
 export default ts.config(
@@ -498,7 +529,7 @@ export default ts.config(
 
 #### `tsconfig.json`:
 
-Upgrade for a ts-only experience, with erasable syntax only.
+Upgrade for a modern ts-only experience
 
 ```json
 {
@@ -516,54 +547,49 @@ Upgrade for a ts-only experience, with erasable syntax only.
 
 #### `package.json`
 
-Add the `format` command to `scripts` (via `dprint`, which should be installed globally: https://dprint.dev/install/)
+Add the `format-dprint` command to `scripts`; the `dprint` executable should be installed globally: https://dprint.dev/install/
 
 ```json
 {
 	"scripts": {
 		...
-		"format": "dprint fmt \"src/**/*.{ts,js,json,svelte}\""
+		"format-dprint": "dprint fmt \"src/**/*.{ts,js,json,svelte}\""
 	}
 }
 ```
 
-### Install and configure TailwindCSS@3 for the SvelteKit app
+Add the `sync` command to `scripts`; might have to be executed manually to refresh the auto-generated type definitions from load functions, etc; an alternative is to simply stop and restart the `pnpm run dev` command, which seems to have the same effect.
 
-NOTE: this is necessary only if we used `create-svelte` (that is, for svelte@4). The `sv` cli will use the new version of tailwindcss (v4)
-that doesn't need a configuration file
-- https://tailwindcss.com/blog/tailwindcss-v4#first-party-vite-plugin
-- https://tailwindcss.com/blog/tailwindcss-v4#css-first-configuration
-
-Reference: https://tailwindcss.com/docs/guides/sveltekit
-
-```bash
-# main packages for TailwindCSS (version 3, not 4!)
-
-pnpm add tailwindcss@3 --save-dev
-pnpm add postcss@8 --save-dev
-
-# we need the exact version for autoprefixer because of this bug (?) - https://github.com/twbs/bootstrap/issues/36259
-pnpm add autoprefixer@10.4.5 --save-dev
-
-# other useful plugins for tailwind  (tailwindUI, and others)
- 
-pnpm add @tailwindcss/aspect-ratio@0.4 --save-dev
-pnpm add @tailwindcss/forms@0.5 --save-dev
-pnpm add @tailwindcss/typography@0.5 --save-dev
-pnpm add tailwind-scrollbar@3.1 --save-dev
-pnpm add tailwindcss-debug-screens@2.2 --save-dev
-
-# for daisyui@5 see https://daisyui.com/docs/v5 (requires tailwindcss@4)
-# pnpm add daisyui@4.12 --save-dev
-
-# initialize the the tailwind.config.js and postcss.config.js configuration files 
-pnpx tailwindcss@3 init --esm --postcss
+```json
+{
+	"scripts": {
+		...
+		"sync": "rm -rf .svelte-kit/types && svelte-kit sync"
+	}
+}
 ```
 
-The `tailwind.config.js` file was customized with the plugins above and other stuff.
+#### `src/routes/page-ts`, `src/routes/page-js`, `src/routes/api`
 
+New routes to test stuff now present in the demo. 
 
-### Verify that the build is working
+#### `src/hooks.*.ts`
+
+Add hooks.
+
+#### `src/routes/+layout.svelte`
+
+Add `<span class="debug-screens"></span>` anywhere (`tailwindcss-debug-screens` plugin)
+
+#### `src/app.html`:
+
+- disable the `data-sveltekit-preload-data` attribute
+- optional: make the `lang` attribute in the `<html>` element dynamic, using `<html lang="%lang%">` (`%lang%` will be replaced in the `handle` server hook)
+- optional: add `height:100%` to `html` and `body`? (via `h-full` from tailwind)
+- optional: add `bg-gray-50` to `body`?
+- optional: add the Inter font (reference: https://tailwindcss.com/plus/ui-blocks/documentation#add-the-inter-font-family)
+
+### 3.3 - Verify that the build is working
 
 Reference: https://kit.svelte.dev/docs/adapter-node
 
