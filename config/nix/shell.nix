@@ -5,18 +5,19 @@
 
 let
 	# channel status: https://status.nixos.org
-	stable-channel = "https://github.com/NixOS/nixpkgs/archive/refs/heads/nixos-25.11.tar.gz";
-	#unstable-channel = "https://github.com/NixOS/nixpkgs/archive/refs/heads/nixos-unstable.tar.gz";
+	stable-fixed = "https://github.com/NixOS/nixpkgs/archive/refs/tags/26.05.tar.gz";
+	#stable = "https://github.com/NixOS/nixpkgs/archive/refs/heads/nixos-26.05.tar.gz";
+	#unstable = "https://github.com/NixOS/nixpkgs/archive/refs/heads/nixos-unstable.tar.gz";
 
-	nixpkgs = fetchTarball stable-channel;
+	nixpkgs = fetchTarball stable-fixed;
 	pkgs = import nixpkgs { config = {}; overlays = []; };
 in
 pkgs.mkShell {
 
 	packages = [
-		pkgs.nodejs_22
-		#pkgs.corepack_22 # provides pnpm, etc
-		pkgs.pnpm
+		pkgs.nodejs_24
+		pkgs.corepack_24 # provides pnpm, etc
+		#pkgs.pnpm
 
 		pkgs.bat
 		pkgs.curl

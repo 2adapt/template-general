@@ -391,15 +391,16 @@ pnpx http-server --port 5000 --cors
 
 Reference: https://kit.svelte.dev/docs/creating-a-project
 
-SvelteKit should be used with svelte@5, but we can still use svelte@4.
+SvelteKit should be used with svelte@5, but we can still use svelte@4 (with an old version of sveltekit).
 
-SvelteKit with svelte@5: use the new cli: `sv`
+#### SvelteKit with svelte@5: use the new cli: `sv`
+
 https://github.com/sveltejs/cli
 https://svelte.dev/blog/sv-the-svelte-cli
 
 ```bash
-mkdir -p ${PROJECT_ROOT_DIR}/packages/webapp
-cd ${PROJECT_ROOT_DIR}/packages/webapp
+mkdir -p ${PROJECT_ROOT_DIR}/packages/webapp-svelte5
+cd ${PROJECT_ROOT_DIR}/packages/webapp-svelte5
 
 pnpx sv --help
 pnpx sv create --help
@@ -411,7 +412,7 @@ pnpm add @poppanator/sveltekit-svg --save-dev
 pnpm run dev
 ```
 
-SvelteKit with svelte@4: use the old cli: `create-svelte`
+#### SvelteKit with svelte@4: use the old cli: `create-svelte`
 
 NOTE: as of sveltekit v2.28 the old cli was deleted from the monorepo.
 
@@ -446,7 +447,7 @@ pnpm install @sveltejs/adapter-node@5.3
 pnpm run dev
 ```
 
-### 3.1 - Install and configure TailwindCSS@3 for the SvelteKit app
+### 3.1 - Install and configure TailwindCSS@3 for the SvelteKit app (only for webapp-svelte4)
 
 NOTE: this is necessary only if we used `create-svelte` (that is, for svelte@4). The `sv` cli will use the new version of tailwindcss (v4) that doesn't need a configuration file. It will also install the typography and forms plugins.
 - https://tailwindcss.com/blog/tailwindcss-v4#first-party-vite-plugin
